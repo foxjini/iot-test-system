@@ -10,24 +10,28 @@
 
 구성 요소:
 
-- `backend/` — FastAPI + MySQL. 팀의 센서값/액추에이터 상태를 저장하고 REST API로 제공.
+- `backend/` — FastAPI + MySQL/MariaDB. 팀의 센서값/액추에이터 상태를 저장하고 REST API로 제공.
 - `frontend/` — Next.js 대시보드. 팀 구성 관리 + 센서 모니터링 + 액추에이터 제어 화면.
 - `mock_pi/` — 진짜 라즈베리파이가 준비되기 전, 그 자리를 대신하는 Python 프로그램.
 
-**`backend` + `frontend` + `MySQL`은 같은 Windows PC 한 대에 설치**하고, 그 PC와 같은
-네트워크(공유기/핫스팟)에 연결된 라즈베리파이가 REST API로 접속하는 구조다.
+**`backend` + `frontend` + DB(MySQL 또는 MariaDB)는 같은 Windows PC 한 대에 설치**하고,
+그 PC와 같은 네트워크(공유기/핫스팟)에 연결된 라즈베리파이가 REST API로 접속하는 구조다.
+백엔드는 SQLAlchemy + PyMySQL로 접속하므로 **MySQL과 MariaDB 둘 다 코드 변경 없이 동작한다**
+(이미 둘 다로 검증됨). 팀마다 이미 설치되어 있는 쪽을 그대로 쓰면 된다.
 
 ## 1. Windows PC 준비물 설치
 
 1. **Python 3.11 이상** — [python.org](https://www.python.org/downloads/) 설치 시
    "Add python.exe to PATH" 체크.
 2. **Node.js 20 이상(LTS)** — [nodejs.org](https://nodejs.org/)
-3. **MySQL 8.0** (MySQL Community Server) — [MySQL Installer](https://dev.mysql.com/downloads/installer/)로 설치.
-   설치 중 지정한 root 비밀번호를 기억해 둘 것.
+3. **MySQL 8.0 또는 MariaDB 10.x** 중 하나 — [MySQL Installer](https://dev.mysql.com/downloads/installer/)
+   또는 [MariaDB 다운로드](https://mariadb.org/download/) 로 설치. 이미 둘 중 하나가 설치되어
+   있다면 새로 깔 필요 없다. 설치 중 지정한 **root 비밀번호를 기억해 둘 것** — 이 시스템은
+   별도 앱 계정을 만들지 않고 root 계정을 그대로 사용한다.
 
-## 2. MySQL 데이터베이스 만들기
+## 2. 데이터베이스 만들기
 
-"MySQL Command Line Client"를 열고 root 비밀번호로 로그인한 뒤:
+MySQL Workbench, "MySQL Command Line Client", HeidiSQL 등으로 root 계정으로 로그인한 뒤:
 
 ```sql
 source C:/경로/iot-test-system/scripts/mysql_setup.sql
@@ -39,8 +43,14 @@ source C:/경로/iot-test-system/scripts/mysql_setup.sql
 mysql -u root -p < scripts\mysql_setup.sql
 ```
 
-`iot_test` 데이터베이스와 `iot_test`/`iot_test_pw` 계정이 생성된다.
-(비밀번호를 바꾸고 싶다면 `scripts/mysql_setup.sql`과 `backend/.env`의 `DATABASE_URL`을 함께 수정)
+`iot_test` 데이터베이스가 생성된다. 그 다음 `backend/.env.example`을 `backend/.env`로
+복사하고 `DATABASE_URL`의 `여기에_root_비밀번호` 부분을 실제 root 비밀번호로 바꾼다
+(`setup.bat`을 실행하면 `.env`는 자동으로 복사되므로, 그 안의 비밀번호만 채우면 된다).
+
+> **root 계정으로 접속이 안 될 때(Access denied for user 'root'@'127.0.0.1')**:
+> root 계정이 `localhost` 전용으로만 등록되어 있고 127.0.0.1(TCP) 접속용 등록이 없는
+> 경우다. `scripts/mysql_setup.sql` 안의 주석 처리된 `CREATE USER 'root'@'127.0.0.1'...`
+> 부분을 실제 비밀번호로 채워 넣고 다시 실행하면 해결된다.
 
 ## 3. 백엔드 실행
 
@@ -110,7 +120,8 @@ run.bat
 | 증상 | 확인할 것 |
 |---|---|
 | 프론트엔드에서 "백엔드에 연결할 수 없습니다" | 백엔드(`run.bat`)가 실행 중인지, `frontend/.env.local`의 주소가 맞는지 |
-| 백엔드 실행 시 MySQL 연결 오류 | MySQL 서비스가 켜져 있는지, `backend/.env`의 `DATABASE_URL` 계정/비밀번호가 맞는지 |
+| 백엔드 실행 시 DB 연결 오류 | MySQL/MariaDB 서비스가 켜져 있는지, `backend/.env`의 `DATABASE_URL` root 비밀번호가 맞는지 |
+| `Access denied for user 'root'@'127.0.0.1'` | root 계정이 `localhost` 전용으로만 등록된 경우다. 위 2번 항목의 안내대로 `root`@`127.0.0.1` 계정을 추가로 등록한다 |
 | Mock 실행 시 401 오류 | `mock_pi/.env`의 `DEVICE_ID`/`API_KEY`가 대시보드에서 발급받은 값과 정확히 일치하는지 |
 | 라즈베리파이(또는 다른 PC)에서 백엔드 접속 안 됨 | Windows 방화벽 인바운드 규칙(8000번 포트), 같은 네트워크 대역인지, `run.bat`이 `--host 0.0.0.0`로 켜져 있는지 |
 | 대시보드에 값은 오는데 갱신이 느림 | 정상 동작(1~2초 폴링 방식). 더 빠르게 하려면 `mock_pi` 실행 시 `--push-interval`, `--poll-interval` 값을 줄인다 |
