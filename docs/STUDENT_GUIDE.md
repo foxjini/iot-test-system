@@ -1,0 +1,116 @@
+# 라즈베리파이팀을 위한 사용 가이드
+
+## 이 시스템은 왜 필요한가
+
+우리 팀의 진짜 백엔드/프론트엔드가 아직 개발 중이더라도, 라즈베리파이 5의 센서/액추에이터
+코드와 REST API 통신 부분을 미리 만들고 테스트할 수 있도록, 14종 센서/액추에이터를 모두
+지원하는 **범용 테스트 백엔드+프론트엔드**를 제공한다. 진짜 백엔드가 완성되면 이 시스템과
+**같은 API 계약**(`docs/API.md`)을 따르므로, 지금 만든 라즈베리파이 쪽 코드를 거의 그대로
+옮겨 쓸 수 있다.
+
+구성 요소:
+
+- `backend/` — FastAPI + MySQL. 팀의 센서값/액추에이터 상태를 저장하고 REST API로 제공.
+- `frontend/` — Next.js 대시보드. 팀 구성 관리 + 센서 모니터링 + 액추에이터 제어 화면.
+- `mock_pi/` — 진짜 라즈베리파이가 준비되기 전, 그 자리를 대신하는 Python 프로그램.
+
+**`backend` + `frontend` + `MySQL`은 같은 Windows PC 한 대에 설치**하고, 그 PC와 같은
+네트워크(공유기/핫스팟)에 연결된 라즈베리파이가 REST API로 접속하는 구조다.
+
+## 1. Windows PC 준비물 설치
+
+1. **Python 3.11 이상** — [python.org](https://www.python.org/downloads/) 설치 시
+   "Add python.exe to PATH" 체크.
+2. **Node.js 20 이상(LTS)** — [nodejs.org](https://nodejs.org/)
+3. **MySQL 8.0** (MySQL Community Server) — [MySQL Installer](https://dev.mysql.com/downloads/installer/)로 설치.
+   설치 중 지정한 root 비밀번호를 기억해 둘 것.
+
+## 2. MySQL 데이터베이스 만들기
+
+"MySQL Command Line Client"를 열고 root 비밀번호로 로그인한 뒤:
+
+```sql
+source C:/경로/iot-test-system/scripts/mysql_setup.sql
+```
+
+또는 명령 프롬프트에서:
+
+```bat
+mysql -u root -p < scripts\mysql_setup.sql
+```
+
+`iot_test` 데이터베이스와 `iot_test`/`iot_test_pw` 계정이 생성된다.
+(비밀번호를 바꾸고 싶다면 `scripts/mysql_setup.sql`과 `backend/.env`의 `DATABASE_URL`을 함께 수정)
+
+## 3. 백엔드 실행
+
+```bat
+cd backend
+setup.bat   REM 최초 1회: venv 생성 + 라이브러리 설치 + .env 생성
+run.bat     REM 실행 (http://0.0.0.0:8000, 종료: Ctrl+C)
+```
+
+`http://localhost:8000/docs` 접속 시 모든 API를 Swagger UI로 바로 테스트해 볼 수 있다.
+
+## 4. 프론트엔드(대시보드) 실행
+
+```bat
+cd frontend
+setup.bat   REM 최초 1회: npm install + .env.local 생성
+run.bat     REM 실행 (http://localhost:3000)
+```
+
+브라우저로 `http://localhost:3000` 접속.
+
+## 5. 대시보드에서 팀 디바이스 등록 및 구성
+
+1. 홈 화면에서 "새 디바이스(팀) 등록"에 팀 이름 입력 → 등록.
+2. 발급된 **device_id / API Key**를 적어 둔다 (화면에 계속 표시됨).
+3. 디바이스 카드를 클릭해 상세 화면으로 이동, "구성 관리"에서 우리 팀이 실제로 쓰는
+   센서/액추에이터를 14종 중 골라 이름을 붙여 추가한다 (예: DHT11 → "거실 온습도").
+
+## 6. Mock 라즈베리파이 실행 (진짜 Pi가 아직 없거나 코드가 준비되지 않았을 때)
+
+```bat
+cd mock_pi
+setup.bat   REM 최초 1회: venv 생성 + 라이브러리 설치 + .env 생성
+```
+
+`mock_pi\.env`를 열어 5번에서 적어 둔 `DEVICE_ID`, `API_KEY`를 입력한 뒤:
+
+```bat
+run.bat
+```
+
+대시보드로 돌아가면 방금 추가한 센서 카드에 값이 들어오기 시작하고, 액추에이터 카드에서
+"적용"을 누르면 콘솔에 `[명령 실행]` 로그가 찍히며 "실행 완료"로 바뀌는 것을 볼 수 있다.
+
+> Mock은 대시보드의 "구성 관리"에서 선택한 항목을 자동으로 읽어 동작한다. 항목을
+> 추가/삭제해도 Mock을 재시작할 필요 없이 (기본 15초 주기로) 자동 반영된다.
+
+## 7. 진짜 라즈베리파이 5로 전환하기
+
+라즈베리파이 5(Trixie OS)에서:
+
+1. 같은 공유기/네트워크에 연결한다.
+2. Windows PC의 LAN IP를 확인한다 (Windows에서 `ipconfig` → IPv4 주소, 예: `192.168.0.10`).
+3. 라즈베리파이에서 `curl http://192.168.0.10:8000/api/health` 로 접속이 되는지 먼저 확인한다.
+   - 안 되면 **Windows Defender 방화벽에서 8000번 포트 인바운드 허용**이 필요할 수 있다.
+4. `mock_pi/` 폴더 전체를 라즈베리파이로 복사해도 되고, 직접 gpiozero로 새로 작성해도 된다.
+   어느 쪽이든 `mock_pi/client.py`의 `BackendClient`는 그대로 재사용 가능하다 —
+   REST 통신 코드이지 Mock 전용 코드가 아니다.
+5. `mock_pi/sensors/*.py`, `mock_pi/actuators/*.py` 안의 `# TODO(실기기 연동)` 주석이 달린
+   부분만 실제 gpiozero 코드로 바꾸면 된다. 함수 시그니처(`generate() -> dict`,
+   `apply(desired: dict) -> dict`)는 그대로 유지해야 `run.py`가 그대로 동작한다.
+6. `.env`의 `BACKEND_URL`을 Windows PC의 LAN IP로 바꾼다
+   (예: `BACKEND_URL=http://192.168.0.10:8000`).
+
+## 문제 해결
+
+| 증상 | 확인할 것 |
+|---|---|
+| 프론트엔드에서 "백엔드에 연결할 수 없습니다" | 백엔드(`run.bat`)가 실행 중인지, `frontend/.env.local`의 주소가 맞는지 |
+| 백엔드 실행 시 MySQL 연결 오류 | MySQL 서비스가 켜져 있는지, `backend/.env`의 `DATABASE_URL` 계정/비밀번호가 맞는지 |
+| Mock 실행 시 401 오류 | `mock_pi/.env`의 `DEVICE_ID`/`API_KEY`가 대시보드에서 발급받은 값과 정확히 일치하는지 |
+| 라즈베리파이(또는 다른 PC)에서 백엔드 접속 안 됨 | Windows 방화벽 인바운드 규칙(8000번 포트), 같은 네트워크 대역인지, `run.bat`이 `--host 0.0.0.0`로 켜져 있는지 |
+| 대시보드에 값은 오는데 갱신이 느림 | 정상 동작(1~2초 폴링 방식). 더 빠르게 하려면 `mock_pi` 실행 시 `--push-interval`, `--poll-interval` 값을 줄인다 |
