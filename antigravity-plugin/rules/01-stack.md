@@ -34,6 +34,15 @@
   - Windows에는 **TightVNC Viewer**(tightvnc.com, 무료)를 설치하고
     `<라즈베리파이IP>:1`(포트로는 `:5901`)로 접속한다.
 
+## 최신 라이브러리 문서 (Context7 MCP)
+
+`mcp_config.json`으로 Context7(https://context7.com) MCP를 연결해 뒀다. gpiozero,
+adafruit-circuitpython-*, ultralytics, mediapipe처럼 버전이 자주 바뀌는 라이브러리를
+쓸 때는 이 스킬 문서의 고정된 예시 코드만 믿지 말고, Context7로 해당 라이브러리의
+**그 시점 최신 문서**를 직접 조회해서 API가 안 바뀌었는지 확인하는 것을 권장한다
+(예: "gpiozero의 DistanceSensor 최신 사용법을 Context7로 확인해줘"). 별도 설치
+없이 원격 MCP로 연결되어 있어 바로 쓸 수 있다.
+
 ## 참고 자료
 
 - gpiozero 설치/핀팩토리: https://gpiozero.readthedocs.io/en/stable/installing.html

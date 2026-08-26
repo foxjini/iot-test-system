@@ -18,8 +18,9 @@ Antigravity는 플러그인을 워크스페이스(팀이 Antigravity로 여는 �
 1. 이 폴더(`antigravity-plugin/`) 전체를 복사한다.
 2. `AGENTS.md`는 워크스페이스 루트로: `D:\team3-pi-project\AGENTS.md`
    (이미 그 프로젝트에 다른 `AGENTS.md`가 있다면 내용을 이어 붙인다).
-3. 나머지(`plugin.json`, `agents/`, `rules/`, `workflows/`, `skills/`, `hooks/`)는
-   `D:\team3-pi-project\.agents\plugins\iot-pi5-vibe-coding\` 아래에 그대로 넣는다.
+3. 나머지(`plugin.json`, `mcp_config.json`, `agents/`, `rules/`, `workflows/`,
+   `skills/`, `hooks/`)는 `D:\team3-pi-project\.agents\plugins\iot-pi5-vibe-coding\`
+   아래에 그대로 넣는다.
 4. Antigravity에서 그 프로젝트 폴더를 워크스페이스로 열면 자동으로 인식된다.
 
 > 위 경로/구조는 2026년 8월 기준 공개된 Antigravity 문서를 참고해 작성했다.
@@ -143,6 +144,7 @@ mock_pi/client.py 같은 방식으로 우리 프로젝트용 client.py를 만들
 | 폴더/파일 | 역할 |
 |---|---|
 | `AGENTS.md` | 워크스페이스 루트에 두는 표준 컨텍스트 (요약) |
+| `mcp_config.json` | Context7 MCP 연결 (라이브러리 최신 문서 조회, 설치 불필요) |
 | `rules/` | 항상 적용: 스택, 카탈로그 계약, API 계약, 코드 관례 |
 | `agents/` | 서브에이전트: gpio-agent, api-agent, vision-agent |
 | `workflows/` | 반복 절차: 센서/액추에이터/비전 트리거 추가, 연결 테스트, 배포 |

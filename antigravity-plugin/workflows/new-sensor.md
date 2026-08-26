@@ -7,7 +7,9 @@
    최소 코드를 확인한다.
 4. `sensors/<type_key>.py`를 만든다. `generate() -> dict | None` 하나만 구현한다 —
    값을 못 읽었으면 `None`을 반환한다 (예외로 전체 루프를 죽이지 않는다).
-5. 반환하는 dict의 키/타입이 2번 계약과 정확히 일치하는지 다시 확인한다.
+5. 전체 루프에 연결하기 전에 `generate()`가 계약대로 값을 반환하는지 **단독으로
+   먼저 테스트**한다 (예: `python -c "import sensors.hcsr04 as s; print(s.generate())"`).
+   반환된 dict의 키/타입이 1번 계약과 정확히 일치하는지 여기서 확인한다.
 6. `run.py`(또는 동일 구조)의 센서 push 루프에서 이 함수를 호출해
    `push_telemetry()`로 올리도록 연결한다.
 7. `workflows/connect-and-test.md`로 실제 값이 대시보드에 올라오는지 확인한다.

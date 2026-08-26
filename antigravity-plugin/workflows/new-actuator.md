@@ -8,7 +8,10 @@
    구현한다 — `desired`를 받아 실제 GPIO를 그 상태로 바꾸고, **반영된 실제 상태**를
    그대로 dict로 반환한다 (실패했으면 실제로 반영된 값만 반환하거나 예외를 던져서
    호출부가 `status="failed"`로 ack하게 한다).
-5. `run.py`(또는 동일 구조)의 명령 poll 루프에서: `pending_commands()` → 해당
+5. 전체 루프에 연결하기 전에 `apply()`를 단독으로 먼저 테스트한다 (예:
+   `python -c "import actuators.servo as a; print(a.apply({'angle_deg': 90.0}))"`).
+   반환된 dict가 `desired_state`와 같은 형태(키/타입)인지 여기서 확인한다.
+6. `run.py`(또는 동일 구조)의 명령 poll 루프에서: `pending_commands()` → 해당
    컴포넌트면 이 `apply()` 호출 → `ack_command(command_id, 반환된_dict)`로 연결한다.
-6. 대시보드의 "적용" 버튼으로 실제 하드웨어가 반응하는지, "현재" 상태 표시가
+7. 대시보드의 "적용" 버튼으로 실제 하드웨어가 반응하는지, "현재" 상태 표시가
    반영된 값과 일치하는지 확인한다.
