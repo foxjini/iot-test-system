@@ -31,7 +31,7 @@ export function ConfigSection({
     <section className="rounded-lg border border-gray-200 bg-white p-5">
       <h2 className="font-semibold">구성 관리 — 우리 팀이 사용하는 센서/액추에이터 선택</h2>
       <p className="mt-1 text-xs text-gray-500">
-        14종 중 실제 작품에서 쓰는 항목만 추가하세요. Mock 프로그램이 이 목록을 자동으로 읽어 동작합니다.
+        15종 중 실제 작품에서 쓰는 항목만 추가하세요. Mock 프로그램이 이 목록을 자동으로 읽어 동작합니다.
       </p>
 
       <form onSubmit={handleAdd} className="mt-3 flex flex-wrap gap-2">

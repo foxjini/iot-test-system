@@ -10,13 +10,13 @@ REST API 계약을 정의한다. **실제 백엔드를 개발하는 학생팀도
 ## 개념
 
 - **Device** — 팀의 라즈베리파이 5 한 대. 등록 시 `id`(device_id)와 `api_key`가 발급된다.
-- **Component** — 디바이스가 실제로 사용하는 센서/액추에이터 1개. 14종 카탈로그 중에서
+- **Component** — 디바이스가 실제로 사용하는 센서/액추에이터 1개. 15종 카탈로그 중에서
   선택해 등록한다 (같은 종류를 여러 개 등록해도 된다, 예: LED 2개).
 - **인증** — 라즈베리파이(Mock/실제)가 호출하는 엔드포인트는 `X-Device-Key` 헤더에
   등록 시 발급받은 `api_key`를 담아야 한다. 프론트엔드 대시보드가 호출하는 엔드포인트는
   교내망 내부 전용 도구이므로 별도 인증이 없다.
 
-## 14종 센서/액추에이터 카탈로그
+## 15종 센서/액추에이터 카탈로그
 
 `GET /api/catalog/components` 로 아래 내용을 언제든 최신 스펙으로 조회할 수 있다
 (필드의 label/unit/min/max 등은 프론트엔드가 폼을 자동으로 그리는 데 쓰인다).
@@ -30,6 +30,7 @@ REST API 계약을 정의한다. **실제 백엔드를 개발하는 학생팀도
 | `dht11` | 센서 | 온습도센서(DHT11) | `temperature_c`(float), `humidity_pct`(float) |
 | `hcsr04` | 센서 | 초음파센서(HC-SR04) | `distance_cm`(float) |
 | `push_button` | 센서 | 푸시버튼 | `pressed`(bool) |
+| `illuminance` | 센서 | 조도센서 | `lux`(float, lx) |
 | `led` | 액추에이터 | LED | `on`(bool), `brightness_pct`(float) |
 | `dc_motor` | 액추에이터 | DC모터 | `speed_pct`(float, -100~100) |
 | `solenoid` | 액추에이터 | 솔레노이드 | `on`(bool) |
@@ -44,7 +45,7 @@ REST API 계약을 정의한다. **실제 백엔드를 개발하는 학생팀도
 
 | Method | Path | 인증 | 설명 |
 |---|---|---|---|
-| GET | `/api/catalog/components` | - | 14종 스펙 전체 조회 |
+| GET | `/api/catalog/components` | - | 15종 스펙 전체 조회 |
 
 ### 디바이스
 

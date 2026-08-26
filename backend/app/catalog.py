@@ -1,4 +1,4 @@
-"""14종 센서/액추에이터 타입 카탈로그.
+"""15종 센서/액추에이터 타입 카탈로그.
 
 백엔드 검증(app.routers), 프론트엔드 동적 UI(/api/catalog/components 응답),
 Mock 라즈베리파이 클라이언트(mock_pi)가 모두 이 정의를 기준으로 삼는 단일 소스다.
@@ -102,6 +102,13 @@ CATALOG: list[ComponentType] = [
         category=Category.SENSOR,
         label_ko="푸시버튼",
         fields=[FieldSpec("pressed", "눌림 여부", FieldType.BOOL)],
+    ),
+    ComponentType(
+        type_key="illuminance",
+        category=Category.SENSOR,
+        label_ko="조도센서",
+        fields=[FieldSpec("lux", "조도", FieldType.FLOAT, unit="lx", min=0, max=2000)],
+        note_ko="CDS 등 아날로그 모듈은 ADC(MCP3008 등) 필요, BH1750 등 I2C 모듈은 전용 라이브러리로 lux 직접 획득",
     ),
     # ---------------- 액추에이터 ----------------
     ComponentType(
