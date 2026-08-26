@@ -12,35 +12,45 @@
 
 | 폴더 | 역할 | 스택 |
 |---|---|---|
-| `backend/` | REST API 서버 | FastAPI + SQLAlchemy + MySQL/MariaDB (Python venv) |
+| `backend/` | REST API 서버 | FastAPI + SQLAlchemy + MySQL (Python venv) |
 | `frontend/` | 팀별 구성/모니터링/제어 대시보드 | Next.js (TypeScript) |
 | `mock_pi/` | 라즈베리파이 5를 대신하는 테스트 클라이언트 | Python venv |
 | `docs/` | API 스펙, 학생 가이드 | - |
-| `scripts/` | DB 초기 설정 스크립트 | - |
+| `scripts/` | MySQL 초기 설정 스크립트 | - |
 
-`backend` + `frontend` + `MySQL 또는 MariaDB`는 한 Windows PC에 함께 설치해서 실행하고,
-라즈베리파이(또는 그 자리를 대신하는 `mock_pi`)가 REST API로 접속하는 구조다. 백엔드는
-SQLAlchemy + PyMySQL로 접속하므로 MySQL/MariaDB 어느 쪽이든 코드 변경 없이 동작한다
-(직접 확인됨). DB 계정은 팀마다 독립 설치되는 테스트 도구라는 점을 감안해 root를 그대로
-사용한다.
+`backend` + `frontend` + `MySQL`은 한 Windows PC에 함께 설치해서 실행하고, 라즈베리파이
+(또는 그 자리를 대신하는 `mock_pi`)가 REST API로 접속하는 구조다. DB 계정은 팀마다 독립
+설치되는 테스트 도구라는 점을 감안해 root를 그대로 사용한다.
 
 ## 빠른 시작 (Windows)
+
+각 폴더의 스크립트는 `.bat`(cmd)와 `.ps1`(PowerShell) 두 버전으로 있다. PowerShell에서는
+`.\setup.bat`처럼 `.\`을 붙이거나 같은 이름의 `.ps1`을 쓴다 (`.ps1` 최초 1회 실행 정책 설정은
+`docs/STUDENT_GUIDE.md` 0번 항목 참고). 항상 **setup 실행 → 방금 생성된 .env 파일 편집 →
+run 실행** 순서다.
 
 ```bat
 REM 1) DB에 iot_test 데이터베이스 생성 (최초 1회, root 계정 사용)
 mysql -u root -p < scripts\mysql_setup.sql
-REM backend\.env.example을 backend\.env로 복사한 뒤 root 비밀번호를 채워 넣는다
 
 REM 2) 백엔드
-cd backend && setup.bat && run.bat
+cd backend
+.\setup.bat
+REM -> backend\.env 생성됨. 열어서 DATABASE_URL의 root 비밀번호를 채운다
+.\run.bat
 
 REM 3) 프론트엔드 (새 터미널)
-cd frontend && setup.bat && run.bat
+cd frontend
+.\setup.bat
+.\run.bat
 
-REM 4) Mock 라즈베리파이 (새 터미널, 대시보드에서 디바이스 등록 후 .env에 키 입력)
-cd mock_pi && setup.bat
-REM mock_pi\.env 에 DEVICE_ID/API_KEY 입력 후
-run.bat
+REM 4) 대시보드(http://localhost:3000)에서 디바이스 등록 후 device_id/API Key 확인
+
+REM 5) Mock 라즈베리파이 (새 터미널)
+cd mock_pi
+.\setup.bat
+REM -> mock_pi\.env 생성됨. 열어서 DEVICE_ID/API_KEY를 4번 값으로 채운다
+.\run.bat
 ```
 
 자세한 설치/실행/문제해결은 [`docs/STUDENT_GUIDE.md`](docs/STUDENT_GUIDE.md),

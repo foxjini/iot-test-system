@@ -1,8 +1,9 @@
--- IoT 테스트 시스템용 DB 생성 스크립트 (MySQL / MariaDB 공용).
+-- IoT 테스트 시스템용 MySQL DB 생성 스크립트.
 -- root 계정을 그대로 사용한다 (팀별로 독립 설치되는 테스트 도구이므로 별도 앱 계정을 만들지 않는다).
 --
--- Windows: MySQL(MySQL Command Line Client) 또는 MariaDB(HeidiSQL, mysql CLI 등)에서
---   mysql -u root -p < scripts/mysql_setup.sql
+-- Windows: "MySQL Command Line Client"에서 root 비밀번호로 로그인 후 이 파일 내용을
+-- 붙여넣거나, 명령 프롬프트/PowerShell에서
+--   mysql -u root -p < scripts\mysql_setup.sql
 -- 로 실행한다.
 
 CREATE DATABASE IF NOT EXISTS iot_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
