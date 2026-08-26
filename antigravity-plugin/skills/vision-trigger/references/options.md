@@ -36,7 +36,7 @@ pip install -r requirements-vision.txt
 
 YOLO/mediapipe는 백엔드에 전용 엔드포인트를 만들어두지 않았다 — 설치 용량이 크고
 팀마다 쓰는 모델/클래스가 다르기 때문이다. 백엔드에서 처리하고 싶다면
-`templates/object_detector_local.py`의 추론 부분을 백엔드 PC에서 별도 스크립트로
+`../templates/object_detector_local.py`의 추론 부분을 백엔드 PC에서 별도 스크립트로
 돌리고, 그 스크립트가 직접 `push_telemetry()`를 호출하도록 구성한다(백엔드 PC에서
 실행되지만 이 REST 계약상으로는 "이 디바이스의 텔레메트리를 올리는 클라이언트"일
 뿐이라 새로운 개념이 필요 없다).

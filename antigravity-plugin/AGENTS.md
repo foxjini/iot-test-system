@@ -9,13 +9,13 @@
 - 대상: 라즈베리파이 5, OS는 Raspberry Pi OS **Trixie**(Debian 13 기반).
 - GPIO 제어는 **gpiozero를 우선 사용**한다 (`gpiozero>=2.0.1.post3`, 핀팩토리는 **lgpio**).
   Pi 5의 RP1 칩은 구형 `RPi.GPIO` 백엔드를 지원하지 않으므로 다른 핀팩토리를 쓰지 않는다.
-- 개발은 Windows PC의 **Antigravity 2.0 IDE**에서 코드를 작성하고, **SSH**(`scp`/`rsync`,
-  Windows 10/11 내장 OpenSSH 클라이언트)로 라즈베리파이에 코드를 올려 실행한다.
-  화면이 필요한 디버깅(카메라 미리보기 등)은 **RealVNC**로 라즈베리파이에 원격 접속한다.
-  자세한 절차는 `workflows/deploy-to-pi.md` 참고.
-- 이 두 원격 도구는 서로 무관하다: SSH는 Raspberry Pi OS 자체 기능(라즈베리파이용
-  RealVNC 요금제와 무관하게 항상 무료)이고, RealVNC는 같은 공유기 LAN 안에서
-  "Direct" 연결로 쓰는 한 라즈베리파이에서 계정 가입 없이 무료다.
+- 개발은 Windows PC의 **Antigravity 2.0 IDE**에서 코드를 작성하고, **WinSCP**(SFTP GUI
+  클라이언트)로 라즈베리파이에 코드를 올려 실행한다. 화면이 필요한 디버깅(카메라
+  미리보기 등)은 **TightVNC**로 라즈베리파이에 원격 접속한다. 자세한 절차는
+  `workflows/deploy-to-pi.md` 참고.
+- WinSCP는 라즈베리파이의 SSH(SFTP) 위에서 동작하므로 SSH 활성화가 먼저 필요하다.
+  TightVNC는 Trixie 기본값인 Wayland가 아니라 X11이 필요해서, 먼저 X11로 전환한
+  뒤 설치한다 (`rules/01-stack.md` 참고).
 
 ## 백엔드 연동 (범용 테스트 시스템)
 
@@ -24,15 +24,15 @@
 - 센서는 주기적으로 `POST /api/devices/{device_id}/telemetry`로 값을 push하고,
   액추에이터 명령은 `GET /api/devices/{device_id}/commands/pending`을 주기적으로
   poll해서 실행한 뒤 `POST .../commands/{command_id}/ack`로 결과를 보고한다.
-- 정확한 엔드포인트/인증/페이로드 형식은 `rules/api-contract.md`와
+- 정확한 엔드포인트/인증/페이로드 형식은 `rules/03-api-contract.md`와
   `skills/backend-api-client/`를 따른다 — 필드명을 임의로 바꾸거나 새로 만들지 않는다.
 
 ## 센서/액추에이터 카탈로그
 
 이 팀이 실제로 쓰는 항목은 전체 카탈로그(센서 8종 + 액추에이터 7종 + 선택적 비전
 센서 2종) 중 프로젝트 주제에 맞게 고른 일부뿐이다. 카탈로그에 없는 필드명을
-새로 만들지 말고, 새 종류가 필요하면 먼저 `rules/catalog-contract.md`에 추가할지
-사용자에게 확인한다. 정확한 필드/타입은 `rules/catalog-contract.md` 참고.
+새로 만들지 말고, 새 종류가 필요하면 먼저 `rules/02-catalog-contract.md`에 추가할지
+사용자에게 확인한다. 정확한 필드/타입은 `rules/02-catalog-contract.md` 참고.
 
 ## 영상/QR 트리거 (선택 기능)
 

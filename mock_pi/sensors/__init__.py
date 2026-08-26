@@ -1,4 +1,15 @@
-from . import dht11, flame, hcsr04, illuminance, keypad, pressure, push_button, reed_switch
+from . import (
+    dht11,
+    flame,
+    hcsr04,
+    illuminance,
+    keypad,
+    object_detector,
+    pressure,
+    push_button,
+    qr_scanner,
+    reed_switch,
+)
 
 GENERATORS = {
     "pressure": pressure.generate,
@@ -9,4 +20,6 @@ GENERATORS = {
     "hcsr04": hcsr04.generate,
     "push_button": push_button.generate,
     "illuminance": illuminance.generate,
+    "qr_scanner": qr_scanner.generate,
+    "object_detector": object_detector.generate,
 }

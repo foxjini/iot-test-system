@@ -29,9 +29,11 @@ Antigravity는 플러그인을 워크스페이스(팀이 Antigravity로 여는 �
 ## 이 프로젝트가 필요로 하는 것들 (최초 1회 확인)
 
 - 라즈베리파이 5, Raspberry Pi OS **Trixie**.
-- SSH 활성화 (`sudo raspi-config` → Interface Options → SSH).
-- (화면 디버깅용) RealVNC — 같은 LAN에서 Direct 연결은 무료. Trixie는
-  `sudo apt install realvnc-vnc-server` + X11 전환이 필요할 수 있다.
+- SSH 활성화 (`sudo raspi-config` → Interface Options → SSH) — WinSCP로 파일을
+  올리려면 필요하다.
+- (코드 전달용) **WinSCP** — Windows에 설치하는 무료 SFTP GUI 클라이언트(winscp.net).
+- (화면 디버깅용) **TightVNC** — Trixie는 기본이 Wayland라, X11로 전환한 뒤
+  `sudo apt install tightvncserver`로 설치해야 한다.
 - `iot-test-system/backend`가 Windows PC에서 실행 중이어야 실제 연동 테스트가 된다
   (`docs/STUDENT_GUIDE.md` 참고).
 
