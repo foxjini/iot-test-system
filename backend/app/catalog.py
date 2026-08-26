@@ -1,4 +1,4 @@
-"""15종 센서/액추에이터 타입 카탈로그.
+"""17종 센서/액추에이터 타입 카탈로그.
 
 백엔드 검증(app.routers), 프론트엔드 동적 UI(/api/catalog/components 응답),
 Mock 라즈베리파이 클라이언트(mock_pi)가 모두 이 정의를 기준으로 삼는 단일 소스다.
@@ -109,6 +109,27 @@ CATALOG: list[ComponentType] = [
         label_ko="조도센서",
         fields=[FieldSpec("lux", "조도", FieldType.FLOAT, unit="lx", min=0, max=2000)],
         note_ko="CDS 등 아날로그 모듈은 ADC(MCP3008 등) 필요, BH1750 등 I2C 모듈은 전용 라이브러리로 lux 직접 획득",
+    ),
+    ComponentType(
+        type_key="qr_scanner",
+        category=Category.SENSOR,
+        label_ko="QR/바코드 인식",
+        fields=[
+            FieldSpec("detected", "인식 여부", FieldType.BOOL),
+            FieldSpec("payload", "인식된 내용", FieldType.STRING),
+        ],
+        note_ko="라즈베리파이 또는 백엔드(오프로드) 중 어디서 인식하든 이 형태로 보고한다. 미인식 시 payload는 빈 문자열",
+    ),
+    ComponentType(
+        type_key="object_detector",
+        category=Category.SENSOR,
+        label_ko="영상 객체 인식",
+        fields=[
+            FieldSpec("label", "인식된 클래스", FieldType.STRING),
+            FieldSpec("confidence", "신뢰도", FieldType.FLOAT, min=0, max=1),
+            FieldSpec("count", "인식 개수", FieldType.INT, min=0),
+        ],
+        note_ko="YOLO 등 다중 클래스 인식 결과 중 대표 1건을 보고한다 (라즈베리파이 5는 GPU 미탑재 — 백엔드 오프로드 고려)",
     ),
     # ---------------- 액추에이터 ----------------
     ComponentType(

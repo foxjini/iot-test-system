@@ -1,0 +1,5 @@
+{
+  "name": "iot-pi5-vibe-coding",
+  "version": "0.1.0",
+  "description": "라즈베리파이 5 IoT 캡스톤 팀용 Antigravity 플러그인. gpiozero 하드웨어 코드, 범용 테스트 백엔드(REST/JSON) 연동, 선택적 영상/QR 트리거 스캐폴딩을 지원한다."
+}

@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import settings
 from app.database import init_db
-from app.routers import catalog, commands, components, devices, heartbeat, telemetry
+from app.routers import catalog, commands, components, devices, heartbeat, telemetry, vision
 
 
 @asynccontextmanager
@@ -36,6 +36,7 @@ app.include_router(components.router)
 app.include_router(telemetry.router)
 app.include_router(commands.router)
 app.include_router(heartbeat.router)
+app.include_router(vision.router)
 
 
 @app.get("/api/health")

@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "check-env-before-run": {
+      "event": "beforeCommandExecution",
+      "match": { "command": "python run.py" },
+      "run": "python hooks/scripts/preflight_check.py"
+    },
+    "format-after-write": {
+      "event": "afterFileWrite",
+      "match": { "glob": "**/*.py" },
+      "run": "python hooks/scripts/format_after_write.py \"${file}\""
+    },
+    "check-pin-conflicts": {
+      "event": "afterFileWrite",
+      "match": { "glob": "{sensors,actuators}/*.py" },
+      "run": "python hooks/scripts/check_pin_conflicts.py"
+    }
+  }
+}

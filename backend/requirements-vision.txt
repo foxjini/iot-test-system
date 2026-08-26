@@ -1,0 +1,3 @@
+# 선택 기능: 비전 인식 오프로드(POST /api/vision/qr)를 쓰는 팀만 추가로 설치한다.
+# cd backend && .\.venv\Scripts\Activate.ps1 && pip install -r requirements-vision.txt
+opencv-python>=4.9,<5.0

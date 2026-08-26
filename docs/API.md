@@ -10,13 +10,13 @@ REST API 계약을 정의한다. **실제 백엔드를 개발하는 학생팀도
 ## 개념
 
 - **Device** — 팀의 라즈베리파이 5 한 대. 등록 시 `id`(device_id)와 `api_key`가 발급된다.
-- **Component** — 디바이스가 실제로 사용하는 센서/액추에이터 1개. 15종 카탈로그 중에서
+- **Component** — 디바이스가 실제로 사용하는 센서/액추에이터 1개. 17종 카탈로그 중에서
   선택해 등록한다 (같은 종류를 여러 개 등록해도 된다, 예: LED 2개).
 - **인증** — 라즈베리파이(Mock/실제)가 호출하는 엔드포인트는 `X-Device-Key` 헤더에
   등록 시 발급받은 `api_key`를 담아야 한다. 프론트엔드 대시보드가 호출하는 엔드포인트는
   교내망 내부 전용 도구이므로 별도 인증이 없다.
 
-## 15종 센서/액추에이터 카탈로그
+## 17종 센서/액추에이터 카탈로그
 
 `GET /api/catalog/components` 로 아래 내용을 언제든 최신 스펙으로 조회할 수 있다
 (필드의 label/unit/min/max 등은 프론트엔드가 폼을 자동으로 그리는 데 쓰인다).
@@ -31,6 +31,8 @@ REST API 계약을 정의한다. **실제 백엔드를 개발하는 학생팀도
 | `hcsr04` | 센서 | 초음파센서(HC-SR04) | `distance_cm`(float) |
 | `push_button` | 센서 | 푸시버튼 | `pressed`(bool) |
 | `illuminance` | 센서 | 조도센서 | `lux`(float, lx) |
+| `qr_scanner` | 센서 | QR/바코드 인식 | `detected`(bool), `payload`(string) |
+| `object_detector` | 센서 | 영상 객체 인식 | `label`(string), `confidence`(float), `count`(int) |
 | `led` | 액추에이터 | LED | `on`(bool), `brightness_pct`(float) |
 | `dc_motor` | 액추에이터 | DC모터 | `speed_pct`(float, -100~100) |
 | `solenoid` | 액추에이터 | 솔레노이드 | `on`(bool) |
@@ -45,7 +47,7 @@ REST API 계약을 정의한다. **실제 백엔드를 개발하는 학생팀도
 
 | Method | Path | 인증 | 설명 |
 |---|---|---|---|
-| GET | `/api/catalog/components` | - | 15종 스펙 전체 조회 |
+| GET | `/api/catalog/components` | - | 17종 스펙 전체 조회 |
 
 ### 디바이스
 
@@ -100,6 +102,32 @@ REST API 계약을 정의한다. **실제 백엔드를 개발하는 학생팀도
 | Method | Path | 인증 | 설명 |
 |---|---|---|---|
 | POST | `/api/devices/{device_id}/heartbeat` | `X-Device-Key` | 생존 신고 |
+
+### 비전 인식 오프로드 (선택 기능)
+
+라즈베리파이 5는 GPU가 없어 무거운 영상 인식(YOLO 등)이 느릴 수 있다. QR 인식만큼은
+백엔드(Windows PC)로 오프로드할 수 있도록 별도 엔드포인트를 둔다. 일반 텔레메트리/명령
+흐름과 무관한 독립 기능이라 `device_id`가 경로에 없고, 등록된 디바이스 중 하나의
+유효한 API Key이기만 하면 된다(특정 device_id에 종속되지 않음).
+
+| Method | Path | 인증 | 설명 |
+|---|---|---|---|
+| POST | `/api/vision/qr` | `X-Device-Key` | 이미지(base64)를 받아 QR을 디코딩해 결과만 반환 |
+
+```json
+// 요청
+{ "image_base64": "<JPEG/PNG를 base64로 인코딩한 문자열>" }
+```
+
+```json
+// 200 응답
+{ "detected": true, "payload": "TEAM3-DOOR-OPEN" }
+```
+
+결과는 자동으로 저장되지 않는다 — 호출한 쪽이 필요하면 `qr_scanner` 컴포넌트에 대해
+평소처럼 `POST .../telemetry`로 직접 기록한다. 이 엔드포인트를 쓰려면 백엔드에
+`backend/requirements-vision.txt`(`opencv-python`)를 추가 설치해야 하며, 설치하지
+않으면 400과 함께 설치 안내 메시지를 반환한다.
 
 ## 동작 방식 요약
 
