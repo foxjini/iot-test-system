@@ -28,69 +28,87 @@ export function ConfigSection({
   }
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-5">
-      <h2 className="font-semibold">구성 관리 — 우리 팀이 사용하는 센서/액추에이터 선택</h2>
-      <p className="mt-1 text-xs text-gray-500">
-        15종 중 실제 작품에서 쓰는 항목만 추가하세요. Mock 프로그램이 이 목록을 자동으로 읽어 동작합니다.
-      </p>
+    <details className="group rounded-md border border-line bg-surface">
+      <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 [&::-webkit-details-marker]:hidden">
+        <span className="flex items-center gap-2">
+          <svg
+            className="chevron h-3 w-3 text-ink-muted"
+            viewBox="0 0 8 8"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path d="M2 0L6 4L2 8" stroke="currentColor" strokeWidth="1.5" />
+          </svg>
+          <span className="text-xs font-medium uppercase tracking-wide text-ink-muted">구성 관리</span>
+        </span>
+        <span className="text-xs text-ink-muted">{components.length}개 등록됨</span>
+      </summary>
 
-      <form onSubmit={handleAdd} className="mt-3 flex flex-wrap gap-2">
-        <select
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-          value={typeKey}
-          onChange={(e) => setTypeKey(e.target.value)}
-        >
-          <option value="">종류 선택...</option>
-          <optgroup label="센서">
-            {sensors.map((c) => (
-              <option key={c.type_key} value={c.type_key}>
-                {c.label_ko}
-              </option>
-            ))}
-          </optgroup>
-          <optgroup label="액추에이터">
-            {actuators.map((c) => (
-              <option key={c.type_key} value={c.type_key}>
-                {c.label_ko}
-              </option>
-            ))}
-          </optgroup>
-        </select>
-        <input
-          className="min-w-[140px] flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm"
-          placeholder="이름 (예: 거실 온습도)"
-          value={label}
-          onChange={(e) => setLabel(e.target.value)}
-        />
-        <button
-          type="submit"
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
-        >
-          추가
-        </button>
-      </form>
+      <div className="border-t border-line px-4 py-4">
+        <p className="text-xs text-ink-secondary">
+          15종 중 실제 작품에서 쓰는 항목만 추가하세요. Mock 프로그램이 이 목록을 자동으로 읽어 동작합니다.
+        </p>
 
-      {components.length > 0 && (
-        <ul className="mt-4 flex flex-wrap gap-2">
-          {components.map((c) => (
-            <li
-              key={c.id}
-              className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs"
-            >
-              <span className="text-gray-400">{c.category === "sensor" ? "센서" : "액추에이터"}</span>
-              <span className="font-medium">{c.label}</span>
-              <span className="text-gray-400">({c.type_key})</span>
-              <button
-                onClick={() => onRemove(c.id)}
-                className="ml-1 text-gray-400 hover:text-red-600"
-                aria-label="삭제"
+        <form onSubmit={handleAdd} className="mt-3 flex flex-wrap gap-2">
+          <select
+            className="rounded-md border border-line bg-bg px-3 py-2 text-sm text-ink-primary"
+            value={typeKey}
+            onChange={(e) => setTypeKey(e.target.value)}
+          >
+            <option value="">종류 선택...</option>
+            <optgroup label="센서">
+              {sensors.map((c) => (
+                <option key={c.type_key} value={c.type_key}>
+                  {c.label_ko}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="액추에이터">
+              {actuators.map((c) => (
+                <option key={c.type_key} value={c.type_key}>
+                  {c.label_ko}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+          <input
+            className="min-w-[140px] flex-1 rounded-md border border-line bg-bg px-3 py-2 text-sm text-ink-primary placeholder:text-ink-muted"
+            placeholder="이름 (예: 거실 온습도)"
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-ink-primary transition-colors hover:bg-white/20"
+          >
+            추가
+          </button>
+        </form>
+
+        {components.length > 0 && (
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {components.map((c) => (
+              <li
+                key={c.id}
+                className="flex items-center gap-2 rounded-full border border-line bg-surface-raised px-3 py-1 text-xs"
               >
-                ×
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+                <span className={c.category === "sensor" ? "text-sensor" : "text-actuator"}>
+                  {c.category === "sensor" ? "센서" : "액추에이터"}
+                </span>
+                <span className="font-medium text-ink-primary">{c.label}</span>
+                <span className="text-ink-muted">({c.type_key})</span>
+                <button
+                  onClick={() => onRemove(c.id)}
+                  className="ml-1 text-ink-muted hover:text-status-critical"
+                  aria-label={`${c.label} 삭제`}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </details>
   );
 }

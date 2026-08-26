@@ -2,6 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  color-scheme: dark;
+}
+
 body {
-  @apply bg-gray-50 text-gray-900;
+  @apply bg-bg text-ink-primary antialiased;
+}
+
+/* Range slider: track is neutral, thumb picks up the surrounding text color
+   (set via a `text-sensor` / `text-actuator` class on the input itself). */
+input[type="range"] {
+  @apply h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/10 outline-none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  @apply h-4 w-4 appearance-none rounded-full bg-current;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.45);
+}
+input[type="range"]::-moz-range-thumb {
+  @apply h-4 w-4 cursor-pointer rounded-full border-0 bg-current;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.45);
+}
+input[type="range"]:focus-visible::-webkit-slider-thumb {
+  @apply ring-2 ring-white/60;
+}
+
+input[type="color"] {
+  @apply h-8 w-14 cursor-pointer rounded-md border border-line bg-transparent p-0.5;
+}
+input[type="color"]::-webkit-color-swatch {
+  @apply rounded border-0;
+}
+input[type="color"]::-webkit-color-swatch-wrapper {
+  @apply rounded p-0;
+}
+
+/* Native <details> chevron rotation for the collapsed-by-default 구성 관리 section */
+.chevron {
+  transition: transform 150ms ease;
+}
+details[open] .chevron {
+  transform: rotate(90deg);
 }
