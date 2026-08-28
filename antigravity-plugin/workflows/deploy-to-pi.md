@@ -8,10 +8,11 @@
 3. Windows에 **WinSCP**(winscp.net, 무료)를 설치하고 새 사이트를 만든다: 파일
    프로토콜 SFTP, 호스트에 라즈베리파이 IP, 사용자명/비밀번호는 라즈베리파이
    로그인 계정. 접속하면 왼쪽(Windows)/오른쪽(라즈베리파이) 듀얼 패널이 보인다.
-4. 화면이 필요한 디버깅(카메라 미리보기 등)을 위해 **TightVNC**도 준비한다
-   (`rules/01-stack.md` 참고 — Trixie는 Wayland가 기본이라 X11 전환이 먼저
-   필요하다). 설치 후 라즈베리파이에서 `vncserver :1`로 세션을 띄우고, Windows의
-   TightVNC Viewer로 `<라즈베리파이IP>:1`에 접속해 한 번 확인해 둔다.
+4. 화면이 필요한 디버깅(카메라 미리보기 등)을 위해 **RealVNC**도 준비한다
+   (`rules/01-stack.md` 참고 — 같은 LAN에서는 Direct 연결이 무료다). Trixie에서
+   `realvnc-vnc-server`가 없다면 `sudo apt install realvnc-vnc-server` 후
+   `raspi-config`에서 X11로 전환 → 재부팅 → VNC 활성화 순서로 진행한다. Windows의
+   RealVNC Viewer로 한 번 접속해 확인해 둔다.
 
 ## 코드를 올릴 때마다
 
@@ -30,7 +31,7 @@
    python run.py
    ```
 5. 로그/출력은 그 터미널에서 바로 보고, 카메라 미리보기 등 화면 확인이 필요하면
-   TightVNC Viewer로 별도 접속해 확인한다.
+   RealVNC Viewer로 별도 접속해 확인한다.
 6. 종료는 터미널 세션에서 Ctrl+C.
 
 ## 참고

@@ -158,7 +158,7 @@ cd mock_pi
 7. Windows PC에서 **Antigravity 2.0 IDE**로 이 코드를 작성한다면
    [`antigravity-plugin/README.md`](../antigravity-plugin/README.md)를 먼저 읽는다.
    같은 카탈로그/API 계약과 gpiozero 배선 정보를 AI 에이전트가 항상 참고하도록
-   만드는 플러그인이다 (WinSCP로 파일을 올리고 TightVNC로 화면을 확인하며
+   만드는 플러그인이다 (WinSCP로 파일을 올리고 RealVNC로 화면을 확인하며
    배포하는 절차 포함).
 
 ## 문제 해결

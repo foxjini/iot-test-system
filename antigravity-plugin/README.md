@@ -33,8 +33,8 @@ Antigravity는 플러그인을 워크스페이스(팀이 Antigravity로 여는 �
 - SSH 활성화 (`sudo raspi-config` → Interface Options → SSH) — WinSCP로 파일을
   올리려면 필요하다.
 - (코드 전달용) **WinSCP** — Windows에 설치하는 무료 SFTP GUI 클라이언트(winscp.net).
-- (화면 디버깅용) **TightVNC** — Trixie는 기본이 Wayland라, X11로 전환한 뒤
-  `sudo apt install tightvncserver`로 설치해야 한다.
+- (화면 디버깅용) **RealVNC** — 같은 LAN에서 Direct 연결은 무료. Trixie는
+  `sudo apt install realvnc-vnc-server` + X11 전환이 필요할 수 있다.
 - `iot-test-system/backend`가 Windows PC에서 실행 중이어야 실제 연동 테스트가 된다
   (`docs/STUDENT_GUIDE.md` 참고).
 
@@ -100,10 +100,10 @@ mock_pi/client.py 같은 방식으로 우리 프로젝트용 client.py를 만들
 이 프로젝트를 라즈베리파이에 배포하고 실행하는 절차를 알려줘.
 ```
 
-라고 물으면 `workflows/deploy-to-pi.md`의 WinSCP/TightVNC 절차를 안내해 준다. 처음엔
+라고 물으면 `workflows/deploy-to-pi.md`의 WinSCP/RealVNC 절차를 안내해 준다. 처음엔
 아래 요약만 기억해도 된다: ① WinSCP로 프로젝트 폴더를 라즈베리파이에 복사 →
 ② WinSCP의 "Open Terminal"(또는 별도 SSH)로 접속해 `python run.py` 실행 →
-③ 화면 확인이 필요하면 TightVNC Viewer로 접속.
+③ 화면 확인이 필요하면 RealVNC Viewer로 접속.
 
 ### (선택) 영상/QR 트리거가 필요하면
 
@@ -136,7 +136,7 @@ mock_pi/client.py 같은 방식으로 우리 프로젝트용 client.py를 만들
 | 생성된 코드를 실행했는데 대시보드에 값이 안 올라옴 | 필드 이름이 `rules/02-catalog-contract.md`와 정확히 같은지, `.env`의 DEVICE_ID/API_KEY가 맞는지 |
 | 라즈베리파이 실행 시 GPIO 관련 오류 | `GPIOZERO_PIN_FACTORY=lgpio` 지정 여부, 핀 번호 중복 여부 (`rules/01-stack.md`) |
 | WinSCP 접속 안 됨 | 라즈베리파이 SSH 활성화 여부 (`sudo raspi-config`) |
-| TightVNC 접속 안 됨 | Trixie가 X11로 전환되어 있는지, `vncserver :1`을 라즈베리파이에서 실행했는지 (`rules/01-stack.md`) |
+| RealVNC 접속 안 됨 | `realvnc-vnc-server` 설치 여부, Trixie가 X11로 전환되어 있는지 (`rules/01-stack.md`) |
 | 어떤 문장으로 물어봐야 할지 모르겠음 | 위 "사용 방법"의 예시 문장을 그대로 복사해서 부품 이름/핀 번호만 우리 팀 것으로 바꿔 써본다 |
 
 ## 구성

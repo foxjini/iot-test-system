@@ -23,16 +23,18 @@
   있다. 정확한 절차는 `workflows/deploy-to-pi.md`.
 - 라즈베리파이에서 SSH 활성화: `sudo raspi-config` → `Interface Options` → `SSH` → `Yes`
   (헤드리스 초기 설정 시에는 부팅 파티션에 빈 `ssh` 파일을 두는 방법도 가능).
-- **화면이 필요한 디버깅**(카메라 미리보기, GUI 확인 등)에는 **TightVNC**를 쓴다.
-  - Trixie는 기본 데스크톱이 **Wayland**인데, TightVNC(고전 Xvnc 기반)는 **X11**이
-    있어야 동작한다. `raspi-config` → Advanced Options에서 Wayland → X11로 전환하고
-    재부팅한 뒤 `sudo apt install tightvncserver`로 설치한다.
-  - 이전에 RealVNC를 설치해 뒀다면 TightVNC 설치 중 충돌해서 제거될 수 있다 —
-    이제 TightVNC만 쓸 거라면 문제 없다.
-  - 설치 후 라즈베리파이에서 `vncserver :1`로 세션을 직접 띄운다(최초 실행 시
-    비밀번호를 설정한다). 재부팅하면 다시 실행해야 한다.
-  - Windows에는 **TightVNC Viewer**(tightvnc.com, 무료)를 설치하고
-    `<라즈베리파이IP>:1`(포트로는 `:5901`)로 접속한다.
+- **화면이 필요한 디버깅**(카메라 미리보기, GUI 확인 등)에는 **RealVNC**를 쓴다
+  (TightVNC는 Trixie와 연동이 원활하지 않아 RealVNC로 되돌렸다).
+  - 같은 공유기/네트워크 안에서 **Direct(LAN) 연결**은 라즈베리파이에 한해 계정
+    가입이나 구독 없이 무료다. 팀 수/기기 수 제한도 없다. (RealVNC의 "Cloud"
+    연결 — 인터넷 너머 원격 접속 — 은 유료 요금제 대상이지만, 이 프로젝트는 같은
+    교실 LAN에서만 쓰므로 해당하지 않는다.)
+  - Trixie에서는 `realvnc-vnc-server` 패키지가 기본 설치되어 있지 않을 수 있다 →
+    `sudo apt install realvnc-vnc-server`로 설치. 또한 Wayland보다 **X11**에서 VNC가
+    더 안정적으로 동작하므로, `raspi-config`에서 X11로 전환 후 재부팅하고 나서
+    VNC를 활성화하는 순서를 권장한다.
+  - SSH와 RealVNC는 서로 독립된 기능이다 — SSH(WinSCP가 쓰는 통로) 사용 여부가
+    RealVNC 요금제에 영향을 주지 않고, 그 반대도 마찬가지다.
 
 ## 최신 라이브러리 문서 (Context7 MCP)
 
@@ -48,4 +50,4 @@ adafruit-circuitpython-*, ultralytics, mediapipe처럼 버전이 자주 바뀌�
 - gpiozero 설치/핀팩토리: https://gpiozero.readthedocs.io/en/stable/installing.html
 - Pi 5 lgpio 이슈 이력: https://github.com/gpiozero/gpiozero/issues/1166
 - WinSCP: https://winscp.net/
-- Raspberry Pi에 TightVNC 설치(Wayland/X11 전환 포함): https://www.penguintutor.com/raspberrypi/tightvnc
+- RealVNC와 라즈베리파이: https://help.realvnc.com/hc/en-us/articles/360002249917-RealVNC-Connect-and-Raspberry-Pi

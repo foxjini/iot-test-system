@@ -11,11 +11,11 @@
   Pi 5의 RP1 칩은 구형 `RPi.GPIO` 백엔드를 지원하지 않으므로 다른 핀팩토리를 쓰지 않는다.
 - 개발은 Windows PC의 **Antigravity 2.0 IDE**에서 코드를 작성하고, **WinSCP**(SFTP GUI
   클라이언트)로 라즈베리파이에 코드를 올려 실행한다. 화면이 필요한 디버깅(카메라
-  미리보기 등)은 **TightVNC**로 라즈베리파이에 원격 접속한다. 자세한 절차는
+  미리보기 등)은 **RealVNC**로 라즈베리파이에 원격 접속한다. 자세한 절차는
   `workflows/deploy-to-pi.md` 참고.
 - WinSCP는 라즈베리파이의 SSH(SFTP) 위에서 동작하므로 SSH 활성화가 먼저 필요하다.
-  TightVNC는 Trixie 기본값인 Wayland가 아니라 X11이 필요해서, 먼저 X11로 전환한
-  뒤 설치한다 (`rules/01-stack.md` 참고).
+  RealVNC는 같은 LAN에서 Direct 연결로 쓰는 한 무료이며, Trixie에서는 X11로
+  전환해야 더 안정적으로 동작한다 (`rules/01-stack.md` 참고).
 
 ## 백엔드 연동 (범용 테스트 시스템)
 

@@ -1,7 +1,7 @@
 # [실습 교재] 라즈베리파이 5 & Antigravity AI 기반 IoT 캡스톤 프로젝트 바이브 코딩 가이드
 
 > **대상**: 라즈베리파이 5(Raspberry Pi OS Trixie) 기반 IoT 캡스톤 프로젝트를 수행하는 학생  
-> **개발 환경**: Windows PC (Antigravity 2.0 IDE, WinSCP, TightVNC) ↔ 라즈베리파이 5  
+> **개발 환경**: Windows PC (Antigravity 2.0 IDE, WinSCP, RealVNC) ↔ 라즈베리파이 5  
 > **핵심 목표**: AI 코딩 에이전트(Antigravity)와 대화하며 하드웨어 센서/액추에이터 제어 코드 및 REST API 연동 시스템을 구축하는 **바이브 코딩(Vibe Coding)** 기법 습득
 
 ---
@@ -34,13 +34,13 @@ graph LR
         BE["테스트 백엔드 (FastAPI)<br/>:8000"]
         FE["웹 대시보드 (Next.js)<br/>:3000"]
         WinSCP["WinSCP (SFTP 배포)"]
-        VNC_Viewer["TightVNC Viewer (원격 화면)"]
+        VNC_Viewer["RealVNC Viewer (원격 화면)"]
     end
 
     subgraph RPi5 ["라즈베리파이 5 (Raspberry Pi OS Trixie)"]
         Runtime["클라이언트 런타임 (run.py)<br/>- 센서 Push 스레드<br/>- 명령 Poll 스레드<br/>- Heartbeat 스레드"]
         lgpio["lgpio / gpiozero"]
-        X11["X11 / TightVNC Server (:1)"]
+        X11["X11 / RealVNC Server"]
     end
 
     subgraph Hardware ["하드웨어 장치"]
@@ -74,14 +74,22 @@ graph LR
 
 ### 2.1 Windows PC 환경 준비
 1. **Antigravity 2.0 IDE** 설치 및 프로젝트 폴더 오픈
-2. **WinSCP** 설치 ([winscp.net](https://winscp.net)) - 무료 SFTP GUI 클라이언트
-3. **TightVNC Viewer** 설치 ([tightvnc.com](https://www.tightvnc.com)) - 라즈베리파이 원격 화면 뷰어
-4. **테스트 백엔드 실행** (Windows PC):
+2. **antigravity-plugin 설치** — 열어둔 프로젝트 폴더에 `iot-test-system/antigravity-plugin/`의
+   내용을 넣는다: `AGENTS.md`는 프로젝트 루트에, 나머지(`plugin.json`, `rules/`,
+   `agents/`, `workflows/`, `skills/`, `hooks/`, `mcp_config.json`)는
+   `.agents/plugins/iot-pi5-vibe-coding/` 아래에 그대로 복사한다. 정확한 경로와
+   확인 방법은 `antigravity-plugin/README.md`의 "설치 방법"을 따른다. **이 단계를
+   건너뛰면 3장(Lab 1)에서 AI가 우리 하드웨어/API 계약을 전혀 모르는 채로 답한다.**
+3. **WinSCP** 설치 ([winscp.net](https://winscp.net)) - 무료 SFTP GUI 클라이언트
+4. **RealVNC Viewer** 설치 ([realvnc.com/download/viewer](https://www.realvnc.com/download/viewer)) - 라즈베리파이 원격 화면 뷰어
+5. **테스트 백엔드 실행** (Windows PC, `iot-test-system` 저장소의 `backend/setup.bat`을
+   먼저 1회 실행해 가상환경을 만들어 둔 상태여야 한다):
    ```powershell
    cd iot-test-system\backend
+   & .\.venv\Scripts\Activate.ps1
    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
-5. **웹 대시보드 실행** (Windows PC):
+6. **웹 대시보드 실행** (Windows PC):
    ```powershell
    cd iot-test-system\frontend
    npm run dev
@@ -99,14 +107,18 @@ graph LR
    hostname -I
    # 예: 192.168.0.50
    ```
-3. **X11 전환 및 TightVNC Server 설치** (Trixie 기본 Wayland에서 X11로 전환):
+3. **X11 전환 및 RealVNC Server 설치** (Trixie 기본 Wayland에서 X11로 전환 —
+   Wayland에서는 RealVNC 연결이 불안정하다):
    ```bash
    sudo raspi-config
    # Advanced Options -> Wayland -> X11 선택 후 재부팅
    sudo apt update
-   sudo apt install -y tightvncserver
-   vncserver :1  # 최초 실행 시 비밀번호 설정
+   sudo apt install -y realvnc-vnc-server
+   sudo raspi-config
+   # Interface Options -> VNC -> Yes 선택 (서비스로 자동 시작, 별도 명령 불필요)
    ```
+   같은 공유기/LAN 안에서 라즈베리파이에 접속하는 **Direct 연결**은 RealVNC 계정
+   가입이나 구독 없이 무료다.
 4. **Python 가상환경 및 필수 패키지 설치**:
    ```bash
    mkdir -p ~/project
@@ -133,7 +145,7 @@ Antigravity IDE에서 플러그인과 룰(`AGENTS.md`, `rules/`)이 올바르게
 > "본 프로젝트는 **라즈베리파이 5(Raspberry Pi OS Trixie)** 기반 IoT 시스템입니다.
 > - **GPIO 제어**: RP1 칩셋 특성에 따라 `gpiozero`와 `lgpio` 핀팩토리를 사용합니다.
 > - **백엔드 연동**: Windows PC의 FastAPI 테스트 서버와 REST API(JSON)로 통신합니다. 센서는 `POST /telemetry`로 주기적 Push, 액추에이터는 `GET /commands/pending`으로 Poll 후 `POST /ack`를 수행합니다.
-> - **카탈로그 규격**: 정해진 센서 8종 및 액추에이터 7종의 데이터 스키마를 엄격히 준수합니다."
+> - **카탈로그 규격**: 정해진 센서 10종(비전 인식 2종 포함) 및 액추에이터 7종, 총 17종의 데이터 스키마를 엄격히 준수합니다."
 
 ---
 
@@ -653,7 +665,7 @@ OpenCV의 cv2.QRCodeDetector()를 사용하고, QR코드가 감지되면 payload
 | 대시보드에 센서 수치가 나타나지 않음 | 1. 텔레메트리 필드명 불일치<br/>2. API 키 불일치 (401 에러) | `rules/02-catalog-contract.md`와 키 이름 대조, `.env`의 `API_KEY` 일치 여부 확인 |
 | 서보모터가 덜덜 떨리거나 회전하지 않음 | 1. 전원 부족 (5V 2A 이상 별도 전원 권장)<br/>2. PWM 펄스 폭 불일치 | `AngularServo`의 `min_pulse_width=0.0005`, `max_pulse_width=0.0024` 파라미터 적용 |
 | WinSCP 접속 불가 | 라즈베리파이 SSH 비활성화 | `sudo raspi-config` → Interface Options → SSH 활성화 |
-| TightVNC 접속 화면이 까맣게 나옴 | Wayland 환경 충돌 | `raspi-config` → Advanced Options → Wayland를 X11로 변경 후 재부팅 |
+| RealVNC 접속이 안 되거나 화면이 이상하게 나옴 | Wayland 환경 충돌 또는 `realvnc-vnc-server` 미설치 | `raspi-config` → Advanced Options → Wayland를 X11로 변경 후 재부팅, `sudo apt install realvnc-vnc-server` 설치 여부 확인 |
 
 ---
 
