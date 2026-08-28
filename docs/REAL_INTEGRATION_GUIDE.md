@@ -1,0 +1,186 @@
+# 라즈베리파이 5 ↔ 팀 실제 백엔드 연동 확인 매뉴얼
+
+> **누가 언제 쓰는 문서인가**: 팀의 라즈베리파이 담당 학생과 백엔드 담당 학생이
+> **함께** 쓴다. 아래가 전부 준비된 뒤에 시작한다.
+> - 라즈베리파이 학생: `docs/STUDENT_HANDBOOK.md` 1~7장(또는 `antigravity-plugin` 실습)을
+>   마쳐서 gpiozero/REST 연동 감각을 익힌 상태.
+> - 백엔드 학생: `agent-vibe-coding-starter-kit2`의 **1단계(Mock 백엔드+DB+대시보드)**까지
+>   끝내서, Mock 상태로나마 대시보드에서 디바이스 제어가 동작하는 상태.
+>
+> **왜 이 문서가 필요한가**: `agent-vibe-coding-starter-kit2`는 완성된 백엔드가
+> 아니라 "설계도 + AI 프롬프트 지침"이다. 실제 엔드포인트/필드명은 팀마다 AI가
+> 생성한 결과에 따라 조금씩 다를 수 있다. 그래서 "이 경로로 하면 된다"고 미리
+> 못박을 수 없고, **팀이 직접 자기 백엔드의 실제 계약을 확인하고 기록한 뒤**
+> 그 값으로 라즈베리파이 코드를 만들어야 한다. 이 문서는 그 확인 절차다.
+
+---
+
+## 0. 시작 전 체크리스트
+
+- [ ] 백엔드 학생: `cd backend && uvicorn main:app --reload --port 8000` 실행 중
+- [ ] 백엔드 학생: `http://localhost:8000/docs`(Swagger)와 `http://localhost:8000/health` 접속 확인됨
+- [ ] 프론트 학생: 대시보드(`http://localhost:3000`)에서 Mock 디바이스 상태가 보이고 제어가 됨
+- [ ] 라즈베리파이 학생: `STUDENT_HANDBOOK.md` 1~7장 실습 완료(임시 테스트 시스템 기준)
+- [ ] 라즈베리파이 5: SSH 활성화, WinSCP/RealVNC 접속 확인됨 (`antigravity-plugin/rules/01-stack.md`)
+
+하나라도 안 됐다면 그것부터 끝낸다 — 이 문서는 "둘 다 각자 기본은 동작하는" 상태를
+전제로, **그 둘을 서로 연결**하는 절차만 다룬다.
+
+---
+
+## 1단계 (백엔드 담당) — 우리 팀 백엔드의 실제 계약 확인
+
+문서(`api-rules.md`, `hardware-rules.md`)가 아니라 **실제로 켜져 있는 내 백엔드**를
+기준으로 확인한다. AI가 문서와 다르게 만들었을 수도 있기 때문이다.
+
+1. `http://localhost:8000/docs`를 연다.
+2. 디바이스 관련 엔드포인트를 찾는다 — 보통 이런 이름이다:
+   - 상태/제어 조회: `GET /api/v1/devices/{id}/desired-state` 또는 `GET /api/devices/{id}` 계열
+   - 상태 보고(디바이스 → 백엔드): `POST /api/v1/devices/{id}/state`
+   - 안 보이면 아직 안 만든 것이다 — `iot-endpoint-generator` 스킬로 먼저 만든다:
+     ```
+     너는 이 프로젝트의 backend-agent다. .agents/skills/iot-endpoint-generator/SKILL.md를 따른다.
+     우리 팀 디바이스 전체에 대한 조회/제어 엔드포인트와 backend/main.py 라우팅을 완성해줘.
+     ```
+3. Swagger의 "Try it out"으로 각 엔드포인트를 실제로 한 번씩 호출해서 **실제 응답 JSON**을 확인한다.
+4. `backend/.env`에서 `DEVICE_API_KEY` 값을 확인한다(라즈베리파이 학생에게 전달할 값).
+
+---
+
+## 2단계 (함께) — 팀 전용 계약 기록표 작성
+
+1단계에서 확인한 **실제 값**을 아래 표에 그대로 채운다. 이 표가 이후 모든 단계의
+기준이 된다 (문서 예시가 아니라 우리 팀 실제 값을 쓴다).
+
+| 항목 | 우리 팀 실제 값 (여기에 채우기) |
+|---|---|
+| 백엔드 URL (라즈베리파이에서 접속할 주소) | `http://<Windows PC IP>:8000` |
+| desired-state 조회 경로 | `GET /api/v1/devices/{id}/desired-state` |
+| 상태 보고 경로 | `POST /api/v1/devices/{id}/state` |
+| 인증 헤더 이름 | `X-Device-Api-Key` |
+| 인증 헤더 값 (`DEVICE_API_KEY`) | `________________` |
+| 디바이스 식별 방식 | 고정 id 1개 / 여러 개(각각 id) — 우리 팀은? |
+| desired-state 응답 예시(JSON 그대로 붙여넣기) | ` ` |
+| 상태 보고 요청 예시(JSON 그대로 붙여넣기) | ` ` |
+| 권장 폴링 주기 | 보통 1~3초 |
+
+> 이 표가 실제 문서(`api-rules.md`)와 다르게 나왔어도 괜찮다 — **AI가 생성한 실제
+> 코드가 기준**이다. 표와 실제 백엔드 동작이 다르면 표를 실제 동작에 맞게 고친다.
+
+---
+
+## 3단계 (라즈베리파이 담당) — Mock 상태에서 REST 연동 단독 테스트
+
+실기기나 `hardware-agent` 코드 생성 없이, **2단계 표만으로 통신 자체**가 되는지
+먼저 확인한다. 아래 스크립트를 라즈베리파이(또는 우선 Windows PC)에서 실행한다.
+
+```python
+# test_backend_contract.py — 2단계 표의 값으로 아래를 수정한 뒤 실행
+import requests
+
+BACKEND_URL = "http://<Windows PC IP>:8000"       # 2단계 표: 백엔드 URL
+DEVICE_ID = "1"                                    # 2단계 표: 디바이스 식별 방식에 맞게
+HEADER_NAME = "X-Device-Api-Key"                   # 2단계 표: 인증 헤더 이름
+API_KEY = "<DEVICE_API_KEY 값>"                     # 2단계 표: 인증 헤더 값
+
+headers = {HEADER_NAME: API_KEY}
+
+r1 = requests.get(f"{BACKEND_URL}/api/v1/devices/{DEVICE_ID}/desired-state", headers=headers, timeout=5)
+print("desired-state 조회:", r1.status_code, r1.text)
+
+r2 = requests.post(
+    f"{BACKEND_URL}/api/v1/devices/{DEVICE_ID}/state",
+    json={"value": "test"},   # 2단계 표: 상태 보고 요청 예시 형태로 수정
+    headers=headers,
+    timeout=5,
+)
+print("상태 보고:", r2.status_code, r2.text)
+```
+
+- 둘 다 200번대 응답이 오면 통과. 401이면 헤더 이름/키 값을, 404면 경로/device_id를
+  2단계 표와 다시 대조한다.
+- 여기서 막히면 4단계(코드 생성)로 넘어가지 않는다 — 통신 자체가 안 되는데
+  gpiozero 코드까지 섞으면 뭐가 문제인지 구분이 안 된다.
+
+---
+
+## 4단계 (라즈베리파이 담당) — `hardware-agent`로 `pi/main.py` 생성
+
+3단계가 통과했으면, 이제 실제 코드를 생성한다. **2단계 표의 실제 값을 프롬프트에
+그대로 포함**시킨다 — 문서 기본값만 믿고 요청하지 않는다.
+
+```
+너는 이 프로젝트의 hardware-agent다. .agents/rules/hardware-rules.md와
+.agents/skills/hardware-integration/SKILL.md를 따른다.
+
+우리 팀 백엔드의 실제 계약은 다음과 같다:
+- desired-state 조회: GET <2단계 표의 실제 경로>
+- 상태 보고: POST <2단계 표의 실제 경로>
+- 인증 헤더: <2단계 표의 실제 헤더 이름과 값>
+
+backend/iot/base.py의 DeviceProvider 인터페이스를 준수하여, 우리 팀 액추에이터
+([예: 도어락])를 gpiozero/lgpio로 제어하는 HardwareDeviceProvider를 pi/main.py에
+만들어줘. desired-state 폴링 방식으로 만들어줘.
+```
+
+생성된 뒤에는 전체 루프에 연결하기 전에 **단독으로 먼저 실행**해서 확인한다
+(`SENSOR_ACTUATOR_PROMPTS.md`에서 이미 익힌 습관과 동일):
+
+```bash
+python -c "import pi.main as p; print(p.some_sensor_or_actuator_function())"
+```
+
+---
+
+## 5단계 (함께) — Mock 모드로 전체 루프 통합 테스트
+
+아직 배선하지 않는다. 코드가 서로 맞물리는지만 먼저 확인한다.
+
+1. 백엔드는 Mock 상태 그대로 켜 둔다.
+2. 라즈베리파이(또는 Windows PC)에서 `pi/main.py`를 실행한다.
+3. 대시보드에서 액추에이터를 조작 → `pi/main.py` 콘솔에 폴링/반영 로그가 찍히는지 확인.
+4. `pi/main.py`가 상태를 보고 → 대시보드에 반영되는지 확인.
+5. 안 되면 6단계(문제 해결)로. 여기까지 되면 통신 계약은 완전히 검증된 것이다.
+
+---
+
+## 6단계 (함께, 교사 입회) — 실기기 배선 후 최종 확인
+
+`.agents/rules/hardware-rules.md`의 안전 수칙(전원 차단 후 배선, 저전력 소자
+전류제한저항, 교사 입회)을 따른다.
+
+1. 배선한다.
+2. `backend/.env`의 `DEVICE_MODE=hardware`로 전환한다 (`.agents/workflows/hardware-swap.md`).
+3. 대시보드 버튼으로 실제 액추에이터가 반응하는지, 실제 센서값이 대시보드에
+   올라오는지 확인한다.
+4. 코드를 더 고쳐야 했다면 Provider 패턴이 깨진 것이니 되짚어본다
+   (`hardware-swap.md` 5번 항목).
+
+---
+
+## 완료 체크리스트
+
+- [ ] 2단계 표에 우리 팀 실제 계약이 채워져 있다
+- [ ] 3단계 단독 테스트가 200번대로 통과했다
+- [ ] 5단계에서 Mock 상태로 대시보드 ↔ Pi 양방향이 확인됐다
+- [ ] 6단계에서 실기기로 같은 동작이 확인됐다
+
+---
+
+## 문제 해결
+
+| 증상 | 확인할 것 |
+|---|---|
+| 3단계에서 401 | 헤더 이름(`X-Device-Api-Key` 등)과 `DEVICE_API_KEY` 값이 `backend/.env`와 정확히 같은지 |
+| 3단계에서 404 | 경로가 실제 Swagger에 있는 것과 정확히 같은지(1단계 다시 확인), device_id 값이 맞는지 |
+| 3단계는 통과했는데 4단계 생성 코드가 안 맞음 | hardware-agent 프롬프트에 2단계 표 값을 안 넣고 요청했을 가능성 — 프롬프트에 실제 값을 명시해서 다시 요청 |
+| 5단계에서 대시보드에 값이 안 올라옴 | 백엔드가 Mock 모드인지(`DEVICE_MODE`), `pi/main.py`가 보고하는 필드명이 2단계 표와 같은지 |
+| 6단계에서만 실패(5단계는 성공) | 코드 문제가 아니라 배선/전원 문제일 가능성이 높음 — `SENSOR_ACTUATOR_PROMPTS.md`의 해당 부품 배선을 재확인 |
+| 계속 막힘 | `STUDENT_HANDBOOK.md` 9.2절, `antigravity-plugin/README.md`의 "막혔을 때"도 함께 확인 (일부 원인은 공통) |
+
+## 참고
+
+- 하드웨어 지식(gpiozero 클래스, 배선): `docs/SENSOR_ACTUATOR_PROMPTS.md`
+- 임시 테스트 시스템 실습: `docs/STUDENT_HANDBOOK.md`
+- 이 플러그인의 역할과 한계: `antigravity-plugin/README.md`
+- 팀 실제 시스템의 상세 규칙: `agent-vibe-coding-starter-kit2`의 `.agents/rules/api-rules.md`, `hardware-rules.md`

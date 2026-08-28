@@ -55,7 +55,9 @@ REM -> mock_pi\.env 생성됨. 열어서 DEVICE_ID/API_KEY를 4번 값으로 채
 ```
 
 자세한 설치/실행/문제해결은 [`docs/STUDENT_GUIDE.md`](docs/STUDENT_GUIDE.md),
-REST API 전체 스펙은 [`docs/API.md`](docs/API.md) 참고.
+REST API 전체 스펙은 [`docs/API.md`](docs/API.md) 참고. 팀의 진짜 백엔드가
+준비된 뒤 실기기를 실제로 연동하는 절차는
+[`docs/REAL_INTEGRATION_GUIDE.md`](docs/REAL_INTEGRATION_GUIDE.md) 참고.
 
 ## 설계 메모
 

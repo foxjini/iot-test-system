@@ -11,7 +11,8 @@
 > 씁니다. 진짜 백엔드가 준비되면 7장까지 만든 `client.py`/`run.py`를 그대로
 > 쓰지 말고, `agent-vibe-coding-starter-kit2`의 `hardware-agent`/
 > `hardware-swap.md` 경로로 다시 연동합니다 — 단, gpiozero 배선/센서·액추에이터
-> 로직(4~5장, `SENSOR_ACTUATOR_PROMPTS.md`)은 그대로 재사용합니다.
+> 로직(4~5장, `SENSOR_ACTUATOR_PROMPTS.md`)은 그대로 재사용합니다. 백엔드 학생과
+> 함께 그 전환을 확인하는 절차는 `REAL_INTEGRATION_GUIDE.md`를 따릅니다.
 
 ---
 
