@@ -14,7 +14,10 @@ REST API 계약을 정의한다. **실제 백엔드를 개발하는 학생팀도
   선택해 등록한다 (같은 종류를 여러 개 등록해도 된다, 예: LED 2개).
 - **인증** — 라즈베리파이(Mock/실제)가 호출하는 엔드포인트는 `X-Device-Key` 헤더에
   등록 시 발급받은 `api_key`를 담아야 한다. 프론트엔드 대시보드가 호출하는 엔드포인트는
-  교내망 내부 전용 도구이므로 별도 인증이 없다.
+  **이 테스트 시스템이 교내망 내부 전용 도구라는 전제로** 별도 인증을 넣지 않은
+  것이다 — 실제 팀 프로젝트 시스템이 이보다 완성도 있는 결과물을 목표로 한다면
+  이 선택을 그대로 가져갈지, 대시보드 쪽에도 인증을 추가할지는 백엔드팀이 별도로
+  판단해야 한다.
 
 ## 17종 센서/액추에이터 카탈로그
 
@@ -41,39 +44,48 @@ REST API 계약을 정의한다. **실제 백엔드를 개발하는 학생팀도
 | `servo` | 액추에이터 | 서보모터(SG-90) | `angle_deg`(float, 0~180) |
 | `relay` | 액추에이터 | 릴레이 | `on`(bool) |
 
+범위(0~100, 2~400 등)는 프론트엔드가 입력 폼을 그릴 때 쓰는 힌트일 뿐이다 —
+**백엔드는 이 범위를 하드 검증하지 않는다.** 실제 센서는 일시적으로 범위를 벗어난
+값을 보낼 수 있고, 그 자체가 확인해야 할 신호이지 거부할 이유가 아니기 때문이다.
+백엔드를 새로 구현하는 팀도 이 필드들에 엄격한 범위 검증을 넣지 않는 것을 권장한다
+(타입 불일치나 정의되지 않은 필드는 여전히 400으로 거부해야 한다).
+
 ## 엔드포인트
+
+아래 "성공 코드" 이외의 모든 실패는 오류 응답 표(맨 아래)를 따른다. 204는 응답
+본문이 없다.
 
 ### 카탈로그
 
-| Method | Path | 인증 | 설명 |
-|---|---|---|---|
-| GET | `/api/catalog/components` | - | 17종 스펙 전체 조회 |
+| Method | Path | 인증 | 성공 코드 | 설명 |
+|---|---|---|---|---|
+| GET | `/api/catalog/components` | - | 200 | 17종 스펙 전체 조회 |
 
 ### 디바이스
 
-| Method | Path | 인증 | 설명 |
-|---|---|---|---|
-| GET | `/api/devices` | - | 디바이스 목록 |
-| POST | `/api/devices` | - | 디바이스 등록 `{team_name}` → `api_key` 발급 |
-| GET | `/api/devices/{device_id}` | - | 디바이스 조회 (온라인 상태 포함) |
-| DELETE | `/api/devices/{device_id}` | - | 디바이스 삭제 |
+| Method | Path | 인증 | 성공 코드 | 설명 |
+|---|---|---|---|---|
+| GET | `/api/devices` | - | 200 | 디바이스 목록 |
+| POST | `/api/devices` | - | 201 | 디바이스 등록 `{team_name}` → `api_key` 발급 |
+| GET | `/api/devices/{device_id}` | - | 200 | 디바이스 조회 (온라인 상태 포함) |
+| DELETE | `/api/devices/{device_id}` | - | 204 | 디바이스 삭제 |
 
 `is_online`은 최근 하트비트가 `HEARTBEAT_TIMEOUT_SEC`(기본 15초) 이내인지로 서버가 계산한다.
 
 ### 컴포넌트(팀별 센서/액추에이터 구성)
 
-| Method | Path | 인증 | 설명 |
-|---|---|---|---|
-| GET | `/api/devices/{device_id}/components` | - | 등록된 컴포넌트 목록 |
-| POST | `/api/devices/{device_id}/components` | - | 컴포넌트 추가 `{type_key, label, gpio_pin?}` |
-| DELETE | `/api/devices/{device_id}/components/{component_id}` | - | 컴포넌트 삭제 |
+| Method | Path | 인증 | 성공 코드 | 설명 |
+|---|---|---|---|---|
+| GET | `/api/devices/{device_id}/components` | - | 200 | 등록된 컴포넌트 목록 |
+| POST | `/api/devices/{device_id}/components` | - | 201 | 컴포넌트 추가 `{type_key, label, gpio_pin?}` |
+| DELETE | `/api/devices/{device_id}/components/{component_id}` | - | 204 | 컴포넌트 삭제 |
 
 ### 센서 텔레메트리
 
-| Method | Path | 인증 | 설명 |
-|---|---|---|---|
-| POST | `/api/devices/{device_id}/telemetry` | `X-Device-Key` | 센서값 일괄 업로드 |
-| GET | `/api/devices/{device_id}/components/{component_id}/readings?limit=50` | - | 최근 이력 조회 |
+| Method | Path | 인증 | 성공 코드 | 설명 |
+|---|---|---|---|---|
+| POST | `/api/devices/{device_id}/telemetry` | `X-Device-Key` | 204 | 센서값 일괄 업로드 |
+| GET | `/api/devices/{device_id}/components/{component_id}/readings?limit=50` | - | 200 | 최근 이력 조회 |
 
 `POST .../telemetry` 요청 본문:
 
@@ -88,20 +100,20 @@ REST API 계약을 정의한다. **실제 백엔드를 개발하는 학생팀도
 
 ### 액추에이터 명령
 
-| Method | Path | 인증 | 설명 |
-|---|---|---|---|
-| POST | `/api/devices/{device_id}/components/{component_id}/command` | - | 명령 등록(대시보드→백엔드) `{desired_state}` |
-| GET | `/api/devices/{device_id}/components/{component_id}/command/latest` | - | 최신 명령/실행결과 조회(대시보드 표시용) |
-| GET | `/api/devices/{device_id}/commands/pending` | `X-Device-Key` | 대기 중인 명령 조회(라즈베리파이 폴링) |
-| POST | `/api/devices/{device_id}/commands/{command_id}/ack` | `X-Device-Key` | 실행결과 보고 `{actual_state, status}` |
+| Method | Path | 인증 | 성공 코드 | 설명 |
+|---|---|---|---|---|
+| POST | `/api/devices/{device_id}/components/{component_id}/command` | - | 201 | 명령 등록(대시보드→백엔드) `{desired_state}` |
+| GET | `/api/devices/{device_id}/components/{component_id}/command/latest` | - | 200 | 최신 명령/실행결과 조회(대시보드 표시용) |
+| GET | `/api/devices/{device_id}/commands/pending` | `X-Device-Key` | 200 | 대기 중인 명령 조회(라즈베리파이 폴링) |
+| POST | `/api/devices/{device_id}/commands/{command_id}/ack` | `X-Device-Key` | 200 | 실행결과 보고 `{actual_state, status}` |
 
 명령 상태(`status`)는 `pending` → `acked`(정상 실행) 또는 `failed`(실행 실패)로 전이한다.
 
 ### 하트비트
 
-| Method | Path | 인증 | 설명 |
-|---|---|---|---|
-| POST | `/api/devices/{device_id}/heartbeat` | `X-Device-Key` | 생존 신고 |
+| Method | Path | 인증 | 성공 코드 | 설명 |
+|---|---|---|---|---|
+| POST | `/api/devices/{device_id}/heartbeat` | `X-Device-Key` | 200 | 생존 신고 |
 
 ### 비전 인식 오프로드 (선택 기능)
 
@@ -110,9 +122,9 @@ REST API 계약을 정의한다. **실제 백엔드를 개발하는 학생팀도
 흐름과 무관한 독립 기능이라 `device_id`가 경로에 없고, 등록된 디바이스 중 하나의
 유효한 API Key이기만 하면 된다(특정 device_id에 종속되지 않음).
 
-| Method | Path | 인증 | 설명 |
-|---|---|---|---|
-| POST | `/api/vision/qr` | `X-Device-Key` | 이미지(base64)를 받아 QR을 디코딩해 결과만 반환 |
+| Method | Path | 인증 | 성공 코드 | 설명 |
+|---|---|---|---|---|
+| POST | `/api/vision/qr` | `X-Device-Key` | 200 | 이미지(base64)를 받아 QR을 디코딩해 결과만 반환 |
 
 ```json
 // 요청
