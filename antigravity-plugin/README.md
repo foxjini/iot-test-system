@@ -8,6 +8,27 @@
 **이 폴더 자체가 실행되는 프로그램은 아니다** — 각 팀의 실제 프로젝트 폴더에
 설치해서 Antigravity가 그 컨텍스트를 읽게 만드는 설정 묶음이다.
 
+## 이 플러그인의 역할 (중요 — 꼭 읽기)
+
+이 플러그인은 **팀의 진짜 백엔드가 준비되기 전, 임시 테스트 시스템
+(`iot-test-system`)에 연동해서 라즈베리파이 코드를 미리 연습·개발**하는 용도다.
+팀의 진짜 백엔드/프론트엔드는 백엔드/프론트엔드 담당 학생이
+`agent-vibe-coding-starter-kit2`로 별도 개발하는데, 그 시스템은 이 플러그인이
+따르는 계약(`docs/API.md`)과 **경로·인증 헤더·응답 형식이 전부 달라서** 그대로
+이어 붙지 않는다.
+
+- **진짜 백엔드가 준비되면**: 이 플러그인으로 만든 `client.py`/`run.py`를 그대로
+  갖다 쓰지 말고, `agent-vibe-coding-starter-kit2`의 `hardware-agent`와
+  `.agents/workflows/hardware-swap.md` 경로를 따라 `pi/main.py`를 새로 만든다.
+  그 시스템은 이미 자체적으로 실기기 연동 경로(`DeviceProvider`, desired-state
+  폴링, 공유 `DEVICE_API_KEY`)를 갖추고 있다 — 이 플러그인이 만든 계약과 다리를
+  놓을 필요 없이, 그 경로를 그대로 따르면 된다.
+- **그대로 옮겨 쓰는 것**: gpiozero 클래스 선택(`DistanceSensor`, `AngularServo`,
+  `PWMLED` 등), lgpio 핀팩토리 필요성, 센서/액추에이터 배선과 로직 자체 —
+  `docs/SENSOR_ACTUATOR_PROMPTS.md`에서 연습한 내용이 그대로 유효하다.
+- **새로 만들어야 하는 것**: REST 클라이언트(`client.py`) 전체 — 경로/헤더/필드명이
+  달라서 재사용할 수 없다.
+
 ## 설치 방법
 
 Antigravity는 플러그인을 워크스페이스(팀이 Antigravity로 여는 프로젝트 폴더)

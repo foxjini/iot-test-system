@@ -5,6 +5,13 @@
 > 다른 부품을 쓴다면 참고할 예시가 없어 막막할 수 있는데, 이 파일이 그 자리를 메운다 —
 > 카탈로그(`rules/02-catalog-contract.md`, `backend/app/catalog.py`)의 **17종 전체**에
 > 대해 같은 형식(💬 프롬프트 예시 → 🤖 생성된 소스 코드)으로 준비했다.
+>
+> ⚠️ 여기서 만드는 `sensors/*.py`·`actuators/*.py`의 **하드웨어 로직(gpiozero
+> 클래스, 배선, mock 폴백)은 팀의 진짜 시스템에도 그대로 재사용**한다. 다만 이
+> 코드가 백엔드와 통신하는 방식(REST 경로/헤더)은 임시 테스트 시스템 기준이라,
+> 진짜 백엔드(`agent-vibe-coding-starter-kit2`)에 연동할 때는 `client.py`만 그
+> 시스템의 `hardware-agent` 방식으로 다시 만든다 — `antigravity-plugin/README.md`의
+> "이 플러그인의 역할" 참고.
 
 ## 사용법
 

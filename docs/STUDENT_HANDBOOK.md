@@ -4,6 +4,15 @@
 > **개발 환경**: Windows PC (Antigravity 2.0 IDE, WinSCP, RealVNC) ↔ 라즈베리파이 5  
 > **핵심 목표**: AI 코딩 에이전트(Antigravity)와 대화하며 하드웨어 센서/액추에이터 제어 코드 및 REST API 연동 시스템을 구축하는 **바이브 코딩(Vibe Coding)** 기법 습득
 
+> ⚠️ **이 교재의 범위**: 여기서 만드는 REST 연동(1~7장)은 **팀의 진짜 백엔드가
+> 준비되기 전 임시로 쓰는 범용 테스트 시스템**(`iot-test-system`) 기준입니다.
+> 팀의 진짜 백엔드/프론트엔드는 다른 학생이 `agent-vibe-coding-starter-kit2`로
+> 별도 개발하며, 그 시스템은 경로·인증 헤더·응답 형식이 전혀 다른 자체 계약을
+> 씁니다. 진짜 백엔드가 준비되면 7장까지 만든 `client.py`/`run.py`를 그대로
+> 쓰지 말고, `agent-vibe-coding-starter-kit2`의 `hardware-agent`/
+> `hardware-swap.md` 경로로 다시 연동합니다 — 단, gpiozero 배선/센서·액추에이터
+> 로직(4~5장, `SENSOR_ACTUATOR_PROMPTS.md`)은 그대로 재사용합니다.
+
 ---
 
 ## 목차 (Table of Contents)
@@ -579,6 +588,12 @@ sensors/ 및 actuators/ 폴더의 모듈을 동적으로 자동 탐색해서 등
 ---
 
 ## 7. 라즈베리파이 5 배포 및 실기기 테스트 (Lab 5)
+
+> 아래 배포 대상은 **임시 테스트 백엔드**(`iot-test-system`)입니다. 팀의 진짜
+> 백엔드가 준비된 뒤의 최종 배포는 `agent-vibe-coding-starter-kit2`의
+> `hardware-agent`/`hardware-swap.md` 절차를 따로 따릅니다 (맨 위 "이 교재의
+> 범위" 참고). WinSCP/RealVNC로 배포·디버깅하는 절차 자체는 두 경우 모두 동일하게
+> 쓸 수 있습니다.
 
 ### 7.1 WinSCP를 통한 배포 절차
 

@@ -26,6 +26,11 @@
   poll해서 실행한 뒤 `POST .../commands/{command_id}/ack`로 결과를 보고한다.
 - 정확한 엔드포인트/인증/페이로드 형식은 `rules/03-api-contract.md`와
   `skills/backend-api-client/`를 따른다 — 필드명을 임의로 바꾸거나 새로 만들지 않는다.
+- **이 계약은 임시 테스트 시스템 전용이다.** 팀의 진짜 백엔드(`agent-vibe-coding-starter-kit2`로
+  별도 개발됨)는 경로·인증 헤더·응답 형식이 다른 자체 계약을 쓴다. 진짜 백엔드가
+  준비되면 이 client.py를 확장하지 말고, 그 저장소의 `hardware-agent`/
+  `hardware-swap.md` 경로로 새로 연동한다 (자세한 내용은 `README.md`의
+  "이 플러그인의 역할" 참고).
 
 ## 센서/액추에이터 카탈로그
 
