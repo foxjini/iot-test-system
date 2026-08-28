@@ -682,6 +682,10 @@ OpenCV의 cv2.QRCodeDetector()를 사용하고, QR코드가 감지되면 payload
 
 ### 10.2 카탈로그 규격 치트시트
 
+> 아래 표는 일부 항목만 담고 있다. **17종 전체**에 대한 프롬프트 예시와 생성 코드는
+> [`SENSOR_ACTUATOR_PROMPTS.md`](SENSOR_ACTUATOR_PROMPTS.md)에 4장·5장과 같은 형식으로
+> 정리되어 있으니, 우리 팀 프로젝트에 필요한 부품을 거기서 찾아 활용한다.
+
 #### 📊 센서 규격 (Sensors)
 | `type_key` | 센서명 | payload 필드 정의 | 예시 데이터 |
 |---|---|---|---|
