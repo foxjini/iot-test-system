@@ -25,7 +25,7 @@
   놓을 필요 없이, 그 경로를 그대로 따르면 된다. 실제 전환 절차는 백엔드 학생과
   함께 진행하는 [`docs/REAL_INTEGRATION_GUIDE.md`](../docs/REAL_INTEGRATION_GUIDE.md) 참고
   (백엔드 학생 쪽 대응 문서는 `agent-vibe-coding-starter-kit2`의
-  `docs/iot-test-system-연동-가이드.md`).
+  `docs/부록D-iot-test-system-연동-가이드.md`).
 - **그대로 옮겨 쓰는 것**: gpiozero 클래스 선택(`DistanceSensor`, `AngularServo`,
   `PWMLED` 등), lgpio 핀팩토리 필요성, 센서/액추에이터 배선과 로직 자체 —
   `docs/SENSOR_ACTUATOR_PROMPTS.md`에서 연습한 내용이 그대로 유효하다.

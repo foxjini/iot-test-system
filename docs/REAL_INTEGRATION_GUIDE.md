@@ -133,7 +133,7 @@ pi/main.py는 backend/iot/base.py를 import하지 않는다 — 라즈베리파�
 > 그러면 AI가 `backend/iot/base.py`를 import하는 코드를 만들어 실행 시점에 깨집니다.
 > 백엔드 쪽 Provider(`backend/iot/hardware_provider.py`)는 GPIO를 만지지 않는 중계
 > 역할이고, 실제 GPIO 제어는 `pi/main.py`가 전담합니다 —
-> `agent-vibe-coding-starter-kit2`의 `docs/백엔드-라즈베리파이5-연동-인터페이스-가이드.md`
+> `agent-vibe-coding-starter-kit2`의 `docs/부록C-백엔드-라즈베리파이5-연동-인터페이스-가이드.md`
 > 2장이 기준입니다.
 
 생성된 뒤에는 전체 루프에 연결하기 전에 **단독으로 먼저 실행**해서 확인한다
@@ -197,7 +197,7 @@ python -c "import main; print(main.some_sensor_or_actuator_function())"
 
 ## 참고
 
-- **`agent-vibe-coding-starter-kit2`의 `docs/iot-test-system-연동-가이드.md`** — 백엔드
+- **`agent-vibe-coding-starter-kit2`의 `docs/부록D-iot-test-system-연동-가이드.md`** — 백엔드
   담당자 관점에서 본 같은 내용(두 계약의 차이 대조표, 값이 여러 개인 부품 처리, 백엔드가
   넘겨야 할 값 체크리스트). 이 문서의 1·2단계를 준비할 때 백엔드 학생이 함께 본다
 - 하드웨어 지식(gpiozero 클래스, 배선): `docs/SENSOR_ACTUATOR_PROMPTS.md`
