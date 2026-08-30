@@ -1,11 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
-from app.models import Device
+from app.models import Device, utcnow
 from app.schemas import DeviceCreate, DeviceOut
 
 router = APIRouter(prefix="/api/devices", tags=["devices"])
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/devices", tags=["devices"])
 
 def _to_out(d: Device) -> DeviceOut:
     online = d.last_seen_at is not None and (
-        datetime.utcnow() - d.last_seen_at < timedelta(seconds=settings.heartbeat_timeout_sec)
+        utcnow() - d.last_seen_at < timedelta(seconds=settings.heartbeat_timeout_sec)
     )
     return DeviceOut(
         id=d.id,

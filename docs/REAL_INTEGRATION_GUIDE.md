@@ -62,7 +62,7 @@
 | 디바이스 식별 방식 | 고정 id 1개 / 여러 개(각각 id) — 우리 팀은? |
 | desired-state 응답 예시(JSON 그대로 붙여넣기) | ` ` |
 | 상태 보고 요청 예시(JSON 그대로 붙여넣기) | ` ` |
-| 권장 폴링 주기 | 보통 1~3초 |
+| 권장 폴링 주기 | 2~5초 (`agent-vibe-coding-starter-kit2`의 인터페이스 가이드 3-3 기준) |
 
 > 이 표가 실제 문서(`api-rules.md`)와 다르게 나왔어도 괜찮다 — **AI가 생성한 실제
 > 코드가 기준**이다. 표와 실제 백엔드 동작이 다르면 표를 실제 동작에 맞게 고친다.
@@ -79,7 +79,9 @@
 import requests
 
 BACKEND_URL = "http://<Windows PC IP>:8000"       # 2단계 표: 백엔드 URL
-DEVICE_ID = "1"                                    # 2단계 표: 디바이스 식별 방식에 맞게
+DEVICE_ID = "led_1"                                # 2단계 표: 우리 백엔드의 devices.id 값
+                                                   # (킷은 led_1 / door_lock_1 같은 슬러그를 쓴다.
+                                                   #  임시 테스트 시스템의 정수 id와 헷갈리지 말 것)
 HEADER_NAME = "X-Device-Api-Key"                   # 2단계 표: 인증 헤더 이름
 API_KEY = "<DEVICE_API_KEY 값>"                     # 2단계 표: 인증 헤더 값
 
@@ -118,17 +120,32 @@ print("상태 보고:", r2.status_code, r2.text)
 - 상태 보고: POST <2단계 표의 실제 경로>
 - 인증 헤더: <2단계 표의 실제 헤더 이름과 값>
 
-backend/iot/base.py의 DeviceProvider 인터페이스를 준수하여, 우리 팀 액추에이터
-([예: 도어락])를 gpiozero/lgpio로 제어하는 HardwareDeviceProvider를 pi/main.py에
-만들어줘. desired-state 폴링 방식으로 만들어줘.
+pi/main.py의 폴링 루프(desired-state 조회 → gpiozero/lgpio로 반영 → state 보고)를
+만들어줘. 우리 팀 액추에이터는 [예: 도어락]이다.
+
+pi/main.py는 backend/iot/base.py를 import하지 않는다 — 라즈베리파이와 백엔드는 서로
+다른 기기에서 도는 별도 프로세스라 import 자체가 불가능하다. base.py와 같은 4개 메서드
+이름(get_device_status / set_actuator_state / read_sensor_value / get_all_statuses)만
+맞춘 독립 클래스로 만들어줘.
 ```
+
+> ⚠️ 예전 버전에서는 "`HardwareDeviceProvider`를 `pi/main.py`에 만들어줘"라고 안내했지만,
+> 그러면 AI가 `backend/iot/base.py`를 import하는 코드를 만들어 실행 시점에 깨집니다.
+> 백엔드 쪽 Provider(`backend/iot/hardware_provider.py`)는 GPIO를 만지지 않는 중계
+> 역할이고, 실제 GPIO 제어는 `pi/main.py`가 전담합니다 —
+> `agent-vibe-coding-starter-kit2`의 `docs/백엔드-라즈베리파이5-연동-인터페이스-가이드.md`
+> 2장이 기준입니다.
 
 생성된 뒤에는 전체 루프에 연결하기 전에 **단독으로 먼저 실행**해서 확인한다
 (`SENSOR_ACTUATOR_PROMPTS.md`에서 이미 익힌 습관과 동일):
 
 ```bash
-python -c "import pi.main as p; print(p.some_sensor_or_actuator_function())"
+# 라즈베리파이에서, pi/ 폴더 안으로 들어가서 실행한다
+cd pi
+python -c "import main; print(main.some_sensor_or_actuator_function())"
 ```
+(`python -c "import pi.main"`처럼 상위 폴더에서 부르면 `pi/`가 파이썬 패키지가 아니라서
+`ModuleNotFoundError`가 납니다.)
 
 ---
 
@@ -180,6 +197,9 @@ python -c "import pi.main as p; print(p.some_sensor_or_actuator_function())"
 
 ## 참고
 
+- **`agent-vibe-coding-starter-kit2`의 `docs/iot-test-system-연동-가이드.md`** — 백엔드
+  담당자 관점에서 본 같은 내용(두 계약의 차이 대조표, 값이 여러 개인 부품 처리, 백엔드가
+  넘겨야 할 값 체크리스트). 이 문서의 1·2단계를 준비할 때 백엔드 학생이 함께 본다
 - 하드웨어 지식(gpiozero 클래스, 배선): `docs/SENSOR_ACTUATOR_PROMPTS.md`
 - 임시 테스트 시스템 실습: `docs/STUDENT_HANDBOOK.md`
 - 이 플러그인의 역할과 한계: `antigravity-plugin/README.md`
