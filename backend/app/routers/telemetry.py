@@ -1,12 +1,10 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.auth import get_device_by_key
 from app.catalog import get_component_type, validate_payload
 from app.database import get_db
-from app.models import Component, Device, SensorReading
+from app.models import Component, Device, SensorReading, utcnow
 from app.schemas import ReadingOut, TelemetryBatchIn
 
 router = APIRouter(prefix="/api/devices/{device_id}", tags=["telemetry"])
@@ -32,7 +30,7 @@ def push_telemetry(
             raise HTTPException(400, f"센서 타입이 아닙니다: {component.type_key}")
         validate_payload(component.type_key, item.value)
         db.add(SensorReading(component_id=component.id, value=item.value))
-    device.last_seen_at = datetime.utcnow()
+    device.last_seen_at = utcnow()
     db.commit()
 
 
@@ -49,7 +47,9 @@ def list_readings(
     rows = (
         db.query(SensorReading)
         .filter(SensorReading.component_id == component_id)
-        .order_by(SensorReading.recorded_at.desc())
+        # recorded_at은 초 단위라 1~2초 폴링에서 값이 자주 겹친다.
+        # id를 함께 정렬하지 않으면 같은 초에 들어온 값들의 순서가 보장되지 않는다.
+        .order_by(SensorReading.recorded_at.desc(), SensorReading.id.desc())
         .limit(limit)
         .all()
     )

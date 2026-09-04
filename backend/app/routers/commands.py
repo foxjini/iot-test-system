@@ -1,12 +1,10 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.auth import get_device_by_key
 from app.catalog import get_component_type, validate_payload
 from app.database import get_db
-from app.models import ActuatorCommand, Component, Device
+from app.models import ActuatorCommand, Component, Device, utcnow
 from app.schemas import CommandAckIn, CommandCreateIn, CommandOut
 
 router = APIRouter(prefix="/api/devices/{device_id}", tags=["commands"])
@@ -43,7 +41,9 @@ def latest_command(device_id: int, component_id: int, db: Session = Depends(get_
     return (
         db.query(ActuatorCommand)
         .filter(ActuatorCommand.component_id == component_id)
-        .order_by(ActuatorCommand.created_at.desc())
+        # created_at은 초 단위다. 슬라이더처럼 1초 안에 여러 번 조작하면
+        # id 없이는 가장 최근 명령이 아닌 엉뚱한 명령이 반환된다.
+        .order_by(ActuatorCommand.created_at.desc(), ActuatorCommand.id.desc())
         .first()
     )
 
@@ -57,7 +57,7 @@ def list_pending_commands(
         db.query(ActuatorCommand)
         .join(Component)
         .filter(Component.device_id == device_id, ActuatorCommand.status == "pending")
-        .order_by(ActuatorCommand.created_at)
+        .order_by(ActuatorCommand.created_at, ActuatorCommand.id)
         .all()
     )
 
@@ -76,7 +76,7 @@ def ack_command(
         raise HTTPException(404, "명령을 찾을 수 없습니다.")
     command.actual_state = body.actual_state
     command.status = body.status
-    command.acked_at = datetime.utcnow()
+    command.acked_at = utcnow()
     db.commit()
     db.refresh(command)
     return command

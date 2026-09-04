@@ -3,10 +3,20 @@ from __future__ import annotations
 import datetime
 import secrets
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Index, Integer, String, func
+from sqlalchemy import JSON, DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+
+
+def utcnow() -> datetime.datetime:
+    """프로젝트 전체가 공유하는 단일 시계 — 타임존 없는 UTC.
+
+    DB의 ``NOW()``(=서버 로컬 시각, 한국 PC면 KST)와 파이썬의 UTC를 섞어 쓰면
+    같은 순간에 기록된 컬럼끼리 9시간 차이가 난다. 그래서 모든 시각 컬럼을
+    이 함수 하나로 채운다. 응답 직렬화는 ``app.schemas``에서 ``Z``를 붙인다.
+    """
+    return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 
 
 def _new_api_key() -> str:
@@ -27,7 +37,7 @@ class Device(Base):
     team_name: Mapped[str] = mapped_column(String(100))
     api_key: Mapped[str] = mapped_column(String(64), unique=True, default=_new_api_key)
     last_seen_at: Mapped[datetime.datetime | None] = mapped_column(DateTime, nullable=True)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, server_default=func.now())
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=utcnow)
 
     components: Mapped[list["Component"]] = relationship(
         back_populates="device", cascade="all, delete-orphan"
@@ -48,7 +58,7 @@ class Component(Base):
     type_key: Mapped[str] = mapped_column(String(50))
     label: Mapped[str] = mapped_column(String(100))
     gpio_pin: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, server_default=func.now())
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=utcnow)
 
     device: Mapped["Device"] = relationship(back_populates="components")
     readings: Mapped[list["SensorReading"]] = relationship(
@@ -66,7 +76,7 @@ class SensorReading(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     component_id: Mapped[int] = mapped_column(ForeignKey("components.id"))
     value: Mapped[dict] = mapped_column(JSON)
-    recorded_at: Mapped[datetime.datetime] = mapped_column(DateTime, server_default=func.now())
+    recorded_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=utcnow)
 
     component: Mapped["Component"] = relationship(back_populates="readings")
 
@@ -80,7 +90,7 @@ class ActuatorCommand(Base):
     desired_state: Mapped[dict] = mapped_column(JSON)
     actual_state: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="pending")  # pending / acked / failed
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, server_default=func.now())
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=utcnow)
     acked_at: Mapped[datetime.datetime | None] = mapped_column(DateTime, nullable=True)
 
     component: Mapped["Component"] = relationship(back_populates="commands")

@@ -1,7 +1,7 @@
 # 엔드포인트 요약
 
 라즈베리파이 쪽에서 실제로 부르는 5개 엔드포인트만 요약한다. 상세 계약(요청/응답
-필드, 오류 형식)은 `rules/03-api-contract.md`와 `iot-test-system/docs/API.md`를 본다.
+필드, 오류 형식)은 `rules/03-api-contract.md`와 `iot-test-system/docs/부록B-REST-API-스펙.md`를 본다.
 
 | 메서드 | 경로 | 인증 | 용도 |
 |---|---|---|---|

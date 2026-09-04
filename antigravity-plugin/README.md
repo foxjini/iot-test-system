@@ -14,7 +14,7 @@
 (`iot-test-system`)에 연동해서 라즈베리파이 코드를 미리 연습·개발**하는 용도다.
 팀의 진짜 백엔드/프론트엔드는 백엔드/프론트엔드 담당 학생이
 `agent-vibe-coding-starter-kit2`로 별도 개발하는데, 그 시스템은 이 플러그인이
-따르는 계약(`docs/API.md`)과 **경로·인증 헤더·응답 형식이 전부 달라서** 그대로
+따르는 계약(`docs/부록B-REST-API-스펙.md`)과 **경로·인증 헤더·응답 형식이 전부 달라서** 그대로
 이어 붙지 않는다.
 
 - **진짜 백엔드가 준비되면**: 이 플러그인으로 만든 `client.py`/`run.py`를 그대로
@@ -23,10 +23,12 @@
   그 시스템은 이미 자체적으로 실기기 연동 경로(`DeviceProvider`, desired-state
   폴링, 공유 `DEVICE_API_KEY`)를 갖추고 있다 — 이 플러그인이 만든 계약과 다리를
   놓을 필요 없이, 그 경로를 그대로 따르면 된다. 실제 전환 절차는 백엔드 학생과
-  함께 진행하는 [`docs/REAL_INTEGRATION_GUIDE.md`](../docs/REAL_INTEGRATION_GUIDE.md) 참고.
+  함께 진행하는 [`docs/03-진짜-백엔드-연동-확인-매뉴얼.md`](../docs/03-진짜-백엔드-연동-확인-매뉴얼.md) 참고
+  (백엔드 학생 쪽 대응 문서는 `agent-vibe-coding-starter-kit2`의
+  `docs/부록D-iot-test-system-연동-가이드.md`).
 - **그대로 옮겨 쓰는 것**: gpiozero 클래스 선택(`DistanceSensor`, `AngularServo`,
   `PWMLED` 등), lgpio 핀팩토리 필요성, 센서/액추에이터 배선과 로직 자체 —
-  `docs/SENSOR_ACTUATOR_PROMPTS.md`에서 연습한 내용이 그대로 유효하다.
+  `docs/부록A-센서-액추에이터-17종-프롬프트-모음.md`에서 연습한 내용이 그대로 유효하다.
 - **새로 만들어야 하는 것**: REST 클라이언트(`client.py`) 전체 — 경로/헤더/필드명이
   달라서 재사용할 수 없다.
 
@@ -58,7 +60,7 @@ Antigravity는 플러그인을 워크스페이스(팀이 Antigravity로 여는 �
 - (화면 디버깅용) **RealVNC** — 같은 LAN에서 Direct 연결은 무료. Trixie는
   `sudo apt install realvnc-vnc-server` + X11 전환이 필요할 수 있다.
 - `iot-test-system/backend`가 Windows PC에서 실행 중이어야 실제 연동 테스트가 된다
-  (`docs/STUDENT_GUIDE.md` 참고).
+  (`docs/01-테스트시스템-설치-및-실행-가이드.md` 참고).
 
 자세한 내용은 `rules/01-stack.md`, 배포 절차는 `workflows/deploy-to-pi.md`.
 
@@ -104,7 +106,7 @@ Antigravity는 플러그인을 워크스페이스(팀이 Antigravity로 여는 �
 ### 3단계 — 테스트 백엔드에 실제로 연결해보기
 
 먼저 Windows PC에서 범용 테스트 시스템의 backend/frontend가 실행 중이어야 한다
-(`docs/STUDENT_GUIDE.md` 1~5번을 먼저 끝낸다). 대시보드에서 디바이스를 등록해
+(`docs/01-테스트시스템-설치-및-실행-가이드.md` 1~5번을 먼저 끝낸다). 대시보드에서 디바이스를 등록해
 device_id/API Key를 받은 다음 채팅창에 요청한다.
 
 ```

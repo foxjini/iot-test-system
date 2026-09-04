@@ -1,5 +1,7 @@
 # IoT 테스트 시스템 — REST API 스펙
 
+> 📂 **부록B / 참조용 스펙 — 이 임시 테스트 시스템 전용 계약** · 전체 목록 [docs/README.md](README.md)
+
 이 문서는 라즈베리파이(Mock 또는 실제 기기)와 백엔드, 그리고 프론트엔드 대시보드 간의
 REST API 계약을 정의한다 — **어디까지나 이 임시 테스트 시스템(`iot-test-system`)의
 계약**이다.
@@ -149,6 +151,18 @@ REST API 계약을 정의한다 — **어디까지나 이 임시 테스트 시�
 `backend/requirements-vision.txt`(`opencv-python`)를 추가 설치해야 하며, 설치하지
 않으면 400과 함께 설치 안내 메시지를 반환한다.
 
+## 시각 형식
+
+모든 시각 필드(`recorded_at`, `created_at`, `last_seen_at`, `acked_at`, `server_time`)는
+**UTC**이며 끝에 `Z`가 붙는다: `2026-08-30T14:22:49Z`.
+
+```
+2026-08-30T14:22:49Z      ← UTC임이 명시되어 있다
+```
+브라우저의 `new Date("...Z")`나 파이썬의 `datetime.fromisoformat`이 그대로 파싱한다.
+`Z`를 떼고 저장하거나 비교하면 브라우저가 로컬 시각으로 해석해 한국에서는 9시간이
+어긋나므로, 받은 문자열을 그대로 쓴다.
+
 ## 동작 방식 요약
 
 - 센서: 라즈베리파이가 **주기적으로 push**(`/telemetry`)한다. 서버가 먼저 요청하지 않는다.
@@ -163,5 +177,6 @@ REST API 계약을 정의한다 — **어디까지나 이 임시 테스트 시�
 | 상태코드 | 상황 |
 |---|---|
 | 400 | 잘못된 요청 (알 수 없는 type_key, 카탈로그에 없는 필드, 센서/액추에이터 카테고리 불일치 등) |
-| 401 | `X-Device-Key`가 없거나 device_id와 일치하지 않음 |
+| 401 | `X-Device-Key` 값이 device_id와 일치하지 않음 |
+| 422 | 필수 헤더(`X-Device-Key`)나 본문 필드가 아예 빠졌을 때 (FastAPI 유효성 검사) |
 | 404 | device_id/component_id/command_id가 존재하지 않음 |

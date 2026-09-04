@@ -1,9 +1,17 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PlainSerializer
+
+# 모든 시각 컬럼은 타임존 없는 UTC로 저장된다(app.models.utcnow). 응답에 'Z'를 붙여
+# UTC임을 명시하지 않으면 브라우저의 new Date()가 '로컬 시각'으로 해석해서,
+# 방금 도착한 센서값이 한국에서 "9시간 전"으로 표시된다.
+UtcDatetime = Annotated[
+    datetime,
+    PlainSerializer(lambda v: v.replace(microsecond=0).isoformat() + "Z", return_type=str),
+]
 
 # ---------------- Catalog ----------------
 
@@ -39,7 +47,7 @@ class DeviceOut(BaseModel):
     team_name: str
     api_key: str
     is_online: bool
-    last_seen_at: datetime | None
+    last_seen_at: UtcDatetime | None
 
 
 # ---------------- Component ----------------
@@ -76,7 +84,7 @@ class ReadingOut(BaseModel):
     id: int
     component_id: int
     value: dict[str, Any]
-    recorded_at: datetime
+    recorded_at: UtcDatetime
 
     model_config = {"from_attributes": True}
 
@@ -99,12 +107,12 @@ class CommandOut(BaseModel):
     desired_state: dict[str, Any]
     actual_state: dict[str, Any] | None
     status: str
-    created_at: datetime
-    acked_at: datetime | None
+    created_at: UtcDatetime
+    acked_at: UtcDatetime | None
 
     model_config = {"from_attributes": True}
 
 
 class HeartbeatOut(BaseModel):
     ok: bool = True
-    server_time: datetime
+    server_time: UtcDatetime
